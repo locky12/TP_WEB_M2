@@ -1,10 +1,11 @@
 package com.tp.webtp.entity;
 
 
+import java.util.List;
 
 public class Series {
 
-    private String id;
-    private SeriesList seriesList;
+    private Long id ;
+    private List<Serie> seriesList;
 
 }

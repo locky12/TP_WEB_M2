@@ -7,9 +7,9 @@ public class Serie {
     private UUID id;
     private String title;
     private String description;
-    private EventList eventList;
+    private List<Event> eventList;
 
-    public Serie(String title, String description, EventList eventList) {
+    public Serie(String title, String description, List<Event> eventList) {
         this.title = title;
         this.description = description;
         eventList = eventList;
