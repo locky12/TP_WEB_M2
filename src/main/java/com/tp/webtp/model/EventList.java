@@ -1,4 +1,4 @@
 package com.tp.webtp.model;
 
-public class SeriesDateTime {
+public class EventList {
 }
