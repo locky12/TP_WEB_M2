@@ -1,10 +1,15 @@
 package com.tp.webtp.entity;
 
+import javax.persistence.Entity;
+import javax.persistence.Id;
+
+@Entity
 public class Share {
+
+    @Id
     private Long idSerie;
     private Long idUser;
     private Boolean write;
-
 
     public Share(Long idSerie, Long idUser, Boolean write) {
         this.idSerie = idSerie;

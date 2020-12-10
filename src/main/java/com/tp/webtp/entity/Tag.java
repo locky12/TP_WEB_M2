@@ -5,14 +5,12 @@ import org.springframework.util.Assert;
 import javax.persistence.*;
 
 @Entity
-@Table(name = "TAG")
 public class Tag {
+
     @Id
     @GeneratedValue
-    @Column(name ="Id", nullable = false)
     private Long id;
 
-    @Column(name = "name", nullable = false)
     private String tagName;
 
     public Tag(String tagName) {
@@ -21,6 +19,7 @@ public class Tag {
         this.tagName = tagName;
     }
 
+    public Tag() {}
 
     public Long getId() {
         return id;
