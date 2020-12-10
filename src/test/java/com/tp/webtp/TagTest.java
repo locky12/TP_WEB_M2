@@ -1,6 +1,6 @@
 package com.tp.webtp;
 
-import com.tp.webtp.model.Tag;
+import com.tp.webtp.entity.Tag;
 import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;

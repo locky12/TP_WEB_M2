@@ -1,4 +1,4 @@
-package com.tp.webtp.model;
+package com.tp.webtp.entity;
 
 
 
