@@ -1,4 +1,4 @@
-package com.tp.webtp;
+package com.tp.webtp.Controller;
 
 import com.tp.webtp.dao.TagDao;
 import com.tp.webtp.entity.Tag;
@@ -10,7 +10,7 @@ import java.util.Calendar;
 import java.util.Date;
 
 @RestController
-public class Controller {
+public class ControllerTest {
     @Autowired
     TagDao tagDao;
 
