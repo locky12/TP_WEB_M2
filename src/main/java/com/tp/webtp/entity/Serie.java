@@ -7,12 +7,12 @@ public class Serie {
     private UUID id;
     private String title;
     private String description;
-    private List<EventList> EventList;
+    private EventList eventList;
 
-    public Serie(String title, String description, List<com.tp.webtp.entity.EventList> eventList) {
+    public Serie(String title, String description, EventList eventList) {
         this.title = title;
         this.description = description;
-        EventList = eventList;
+        eventList = eventList;
     }
 
     public Serie(){}
@@ -37,7 +37,5 @@ public class Serie {
         this.description = description;
     }
 
-    public List<com.tp.webtp.entity.EventList> getEventList() {
-        return EventList;
-    }
+
 }
