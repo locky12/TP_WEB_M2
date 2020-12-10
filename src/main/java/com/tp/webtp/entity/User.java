@@ -4,25 +4,26 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import java.util.UUID;
 
 @Entity
 public class User {
 
     @Id
     @GeneratedValue
-    private Long id;
+    private UUID uuid;
 
     private String email;
 
-    public User(Long id, String email) {
-        this.id = id;
+    public User(UUID uuid, String email) {
+        this.uuid = uuid;
         this.email = email;
     }
 
     public User() {}
 
-    public Long getId() {
-        return id;
+    public UUID getId() {
+        return uuid;
     }
 
     public String getEmail() {

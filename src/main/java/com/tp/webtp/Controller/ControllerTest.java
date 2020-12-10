@@ -1,6 +1,8 @@
 package com.tp.webtp.Controller;
 
+import com.tp.webtp.dao.EventDao;
 import com.tp.webtp.dao.TagDao;
+import com.tp.webtp.entity.Event;
 import com.tp.webtp.entity.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -8,21 +10,27 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.Calendar;
 import java.util.Date;
+import java.util.Iterator;
 
 @RestController
 public class ControllerTest {
+
     @Autowired
-    TagDao tagDao;
+    EventDao eventDAO;
 
     @GetMapping("/test")
     public String get () {
-        Tag tag = new Tag("tag1");
-        Tag tag1 = new Tag("tag2");
-        tagDao.save(tag);
-        tagDao.save(tag1);
-        tagDao.delete(tag);
+        Event tag = new Event();
+        Event tag1 = new Event();
+        eventDAO.save(tag);
+        eventDAO.save(tag1);
+        eventDAO.delete(tag);
 
+        Iterator<Event> i = eventDAO.findAll().iterator();
+        if(i.hasNext()){
+            return i.next().getId().toString();
+        }
 
-        return tagDao.findAll().toString();
+        return eventDAO.findAll().toString();
     }
 }

@@ -2,29 +2,30 @@ package com.tp.webtp.entity;
 
 import javax.persistence.Entity;
 import javax.persistence.Id;
+import java.util.UUID;
 
 @Entity
 public class Share {
 
     @Id
-    private Long idSerie;
+    private UUID uuidSerie;
     private Long idUser;
     private Boolean write;
 
-    public Share(Long idSerie, Long idUser, Boolean write) {
-        this.idSerie = idSerie;
+    public Share(UUID uuidSerie, Long idUser, Boolean write) {
+        this.uuidSerie = uuidSerie;
         this.idUser = idUser;
         this.write = write;
     }
 
     public Share() {}
 
-    public Long getIdSerie() {
-        return idSerie;
+    public UUID getUuidSerie() {
+        return uuidSerie;
     }
 
-    public void setIdSerie(Long idSerie) {
-        this.idSerie = idSerie;
+    public void setUuidSerie(UUID uuidSerie) {
+        this.uuidSerie = uuidSerie;
     }
 
     public Long getIdUser() {

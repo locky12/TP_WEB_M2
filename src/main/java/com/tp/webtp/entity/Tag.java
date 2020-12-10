@@ -3,13 +3,14 @@ package com.tp.webtp.entity;
 import org.springframework.util.Assert;
 
 import javax.persistence.*;
+import java.util.UUID;
 
 @Entity
 public class Tag {
 
     @Id
     @GeneratedValue
-    private Long id;
+    private UUID uuid;
 
     private String tagName;
 
@@ -21,8 +22,8 @@ public class Tag {
 
     public Tag() {}
 
-    public Long getId() {
-        return id;
+    public UUID getId() {
+        return uuid;
     }
 
     public String getTagName() {
