@@ -1,9 +1,6 @@
 package com.tp.webtp.entity;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
-import javax.persistence.OneToMany;
+import javax.persistence.*;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
@@ -14,6 +11,10 @@ public class Event {
     @Id
     @GeneratedValue
     private UUID id;
+
+    @ManyToOne
+    @JoinColumn(name = "id", nullable = false)
+    private Serie Serie;
 
     private String value;
     private Date date;

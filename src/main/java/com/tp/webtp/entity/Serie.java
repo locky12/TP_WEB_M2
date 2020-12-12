@@ -1,6 +1,7 @@
 package com.tp.webtp.entity;
 
 import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.OneToMany;
 import java.util.List;
@@ -10,17 +11,17 @@ import java.util.UUID;
 public class Serie {
 
     @Id
+    @GeneratedValue
     private UUID id;
     private String title;
     private String description;
 
-    @OneToMany
+    @OneToMany(targetEntity = Event.class, mappedBy = "Serie")
     private List<Event> eventList;
 
-    public Serie(String title, String description, List<Event> eventList) {
+    public Serie(String title, String description) {
         this.title = title;
         this.description = description;
-        eventList = eventList;
     }
 
     public Serie(){}
@@ -44,6 +45,4 @@ public class Serie {
     public void setDescription(String description) {
         this.description = description;
     }
-
-
 }

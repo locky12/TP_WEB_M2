@@ -1,8 +1,5 @@
 package com.tp.webtp.entity;
 
-import com.sun.xml.internal.ws.developer.Serialization;
-
-import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;

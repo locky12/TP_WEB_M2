@@ -1,6 +1,7 @@
 package com.tp.webtp.entity;
 
 import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import java.util.UUID;
 
@@ -8,13 +9,16 @@ import java.util.UUID;
 public class Share {
 
     @Id
+    @GeneratedValue
+    private UUID id;
+
     private UUID uuidSerie;
-    private Long idUser;
+    private UUID uuidUser;
     private Boolean write;
 
-    public Share(UUID uuidSerie, Long idUser, Boolean write) {
+    public Share(UUID uuidSerie, UUID uuidUser, Boolean write) {
         this.uuidSerie = uuidSerie;
-        this.idUser = idUser;
+        this.uuidUser = uuidUser;
         this.write = write;
     }
 
@@ -28,12 +32,12 @@ public class Share {
         this.uuidSerie = uuidSerie;
     }
 
-    public Long getIdUser() {
-        return idUser;
+    public UUID getIdUser() {
+        return uuidUser;
     }
 
-    public void setIdUser(Long idUser) {
-        this.idUser = idUser;
+    public void setIdUser(UUID idUser) {
+        this.uuidUser = idUser;
     }
 
     public Boolean getWrite() {
