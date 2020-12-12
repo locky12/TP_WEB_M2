@@ -4,6 +4,7 @@ import com.tp.webtp.dao.EventDao;
 import com.tp.webtp.dao.TagDao;
 import com.tp.webtp.entity.Event;
 import com.tp.webtp.entity.Tag;
+import com.tp.webtp.entity.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -32,5 +33,10 @@ public class ControllerTest {
         }
 
         return eventDAO.findAll().toString();
+    }
+    @GetMapping(path = "/test1")
+    public User getTest(){
+        User user = new User();
+        return user;
     }
 }

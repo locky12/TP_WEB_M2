@@ -1,5 +1,7 @@
 package com.tp.webtp.entity;
 
+import com.sun.xml.internal.ws.developer.Serialization;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -15,8 +17,7 @@ public class User {
 
     private String email;
 
-    public User(UUID uuid, String email) {
-        this.uuid = uuid;
+    public User( String email) {
         this.email = email;
     }
 

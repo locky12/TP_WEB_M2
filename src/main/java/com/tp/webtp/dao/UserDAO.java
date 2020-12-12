@@ -8,4 +8,5 @@ import java.util.UUID;
 
 @Repository
 public interface UserDAO extends CrudRepository<User, UUID> {
+     User findByEmail(String email);
 }
