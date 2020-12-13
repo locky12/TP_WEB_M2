@@ -30,9 +30,6 @@ public class EventController {
     @Autowired
     EventDao eventDao;
 
-
-
-
     @PostMapping("{id}/events")
     public ResponseEntity<Serie> createEvent(HttpServletResponse response, HttpServletRequest request, @PathVariable("id") UUID id, @RequestBody Event eventR) {
 
@@ -45,7 +42,7 @@ public class EventController {
 
         Optional<Serie> serie;
         serie =  serieDao.findById(id);
-        System.out.println("get serie " + serie.get());
+
         if (!serie.isPresent() )
             return ResponseEntity.notFound().build();
 
@@ -55,12 +52,7 @@ public class EventController {
         Event event;
         System.out.println(eventR.getComment());
         eventR.setSerie(serie.get());
-        System.out.println("get serie eventR" + eventR.getSerie());
         event = eventDao.save(eventR);
-        System.out.println("get serie " + event.getSerie());
-
-//        eventDao.findByUuidSerie(id);
-
 
         return  ResponseEntity.created(URI.create("/series/" + serie.get().getId() + "/" + event.getId())).build();
     }
@@ -76,7 +68,6 @@ public class EventController {
         }
 
         UUID idUser = UUID.fromString(cookie.getValue());
-
 
         Optional<Serie> serie;
         serie =  serieDao.findById(id);

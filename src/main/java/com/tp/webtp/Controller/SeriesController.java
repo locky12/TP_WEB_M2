@@ -50,13 +50,13 @@ public class SeriesController {
         List<UUID> uuidList = new ArrayList<UUID>();
 
         //TODO écrire une requete SQL
-        List<Share> listShare = shareDao.findAll();
+        /*List<Share> listShare = shareDao.findAll();
 
         for(Share share : listShare){
             if(share.getIdUser().equals(idUser)){
                 uuidList.add(share.getUuidSerie());
             }
-        }
+        }*/
 
         List<Serie> serieList = serieDao.findAllById(uuidList);
 
@@ -96,7 +96,7 @@ public class SeriesController {
         Serie serie;
         serie = serieDao.save(serieR);
 
-        shareDao.save(new Share(serie.getId(), UUID.fromString(cookie.getValue()), true));
+        shareDao.save(new Share(userDao.findById(UUID.fromString(cookie.getValue())).get(), serie, true));
 
         cookie.setMaxAge(120);
         response.addCookie(cookie);
@@ -120,10 +120,10 @@ public class SeriesController {
         Optional<User> user;
         user = userDao.findById(idUser);
 
-        if(user == null)
+        if(!user.isPresent())
             return ResponseEntity.notFound().build();
 
-        Share share = shareDao.save(new Share(id, idUser, write));
+        Share share = shareDao.save(new Share(user.get(), serieDao.findById(id).get(), write));
 
         cookie.setMaxAge(120);
         response.addCookie(cookie);

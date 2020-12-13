@@ -1,8 +1,6 @@
 package com.tp.webtp.entity;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
+import javax.persistence.*;
 import java.util.UUID;
 
 @Entity
@@ -11,33 +9,44 @@ public class Share {
     @Id
     @GeneratedValue
     private UUID id;
+    @ManyToOne
+    private User user;
+    @ManyToOne
+    @JoinColumn(name = "serieId")
+    private Serie serie;
 
-    private UUID uuidSerie;
-    private UUID uuidUser;
     private Boolean write;
-
-    public Share(UUID uuidSerie, UUID uuidUser, Boolean write) {
-        this.uuidSerie = uuidSerie;
-        this.uuidUser = uuidUser;
-        this.write = write;
-    }
 
     public Share() {}
 
-    public UUID getUuidSerie() {
-        return uuidSerie;
+    public Share(User user, Serie serie, Boolean write) {
+        this.user = user;
+        this.serie = serie;
+        this.write = write;
     }
 
-    public void setUuidSerie(UUID uuidSerie) {
-        this.uuidSerie = uuidSerie;
+    public UUID getId() {
+        return id;
     }
 
-    public UUID getIdUser() {
-        return uuidUser;
+    public void setId(UUID id) {
+        this.id = id;
     }
 
-    public void setIdUser(UUID idUser) {
-        this.uuidUser = idUser;
+    public User getUser() {
+        return user;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
+    }
+
+    public Serie getSerie() {
+        return serie;
+    }
+
+    public void setSerie(Serie serie) {
+        this.serie = serie;
     }
 
     public Boolean getWrite() {
@@ -48,3 +57,4 @@ public class Share {
         this.write = write;
     }
 }
+
