@@ -7,6 +7,7 @@ import com.tp.webtp.dao.UserDAO;
 import com.tp.webtp.entity.*;
 import org.apache.logging.log4j.util.SystemPropertiesPropertySource;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
@@ -33,9 +34,7 @@ public class SeriesController {
     @Autowired
     UserDAO userDao;
 
-
-
-    @GetMapping("/")
+    @GetMapping(value = "/", produces = {MediaType.APPLICATION_JSON_VALUE, MediaType.TEXT_HTML_VALUE, MediaType.TEXT_PLAIN_VALUE, MediaType.APPLICATION_XML_VALUE})
     public ResponseEntity<List<Serie>> getSeries(HttpServletRequest request, HttpServletResponse response) {
 
         Cookie cookie = WebUtils.getCookie(request, "user");
@@ -47,23 +46,17 @@ public class SeriesController {
 
         UUID idUser = UUID.fromString(cookie.getValue());
 
-        List<UUID> uuidList = new ArrayList<UUID>();
+        List<Share> shareList = shareDao.findByUserId(idUser);
 
-        //TODO écrire une requete SQL
-        /*List<Share> listShare = shareDao.findAll();
+        List<Serie> listSerie = new ArrayList<>();
+        for(Share s : shareList){
+            listSerie.add(s.getSerie());
+        }
 
-        for(Share share : listShare){
-            if(share.getIdUser().equals(idUser)){
-                uuidList.add(share.getUuidSerie());
-            }
-        }*/
-
-        List<Serie> serieList = serieDao.findAllById(uuidList);
-
-        return ResponseEntity.ok(serieList) ;
+        return ResponseEntity.ok(listSerie);
     }
 
-    @GetMapping("/{id}")
+    @GetMapping(value = "/{id}", produces = {MediaType.APPLICATION_JSON_VALUE, MediaType.TEXT_HTML_VALUE, MediaType.TEXT_PLAIN_VALUE, MediaType.APPLICATION_XML_VALUE})
     public ResponseEntity<Serie> getSerie(@PathVariable("id") UUID id) {
 
         if ( !StringUtils.hasText(id.toString()) )
@@ -72,13 +65,11 @@ public class SeriesController {
         Optional<Serie> serie;
         serie =  serieDao.findById(id);
 
-        if ( serie == null )
+        if (!serie.isPresent())
             return ResponseEntity.notFound().build();
 
         return ResponseEntity.ok(serie.get());
     }
-
-
 
     @PostMapping()
     public ResponseEntity<Void> createSerie(HttpServletResponse response, HttpServletRequest request, @RequestBody Serie serieR) {
@@ -98,7 +89,7 @@ public class SeriesController {
 
         shareDao.save(new Share(userDao.findById(UUID.fromString(cookie.getValue())).get(), serie, true));
 
-        cookie.setMaxAge(120);
+        cookie.setMaxAge(5000);
         response.addCookie(cookie);
 
         return  ResponseEntity.created(URI.create("/series/" + serie.getId())).build();
@@ -125,14 +116,14 @@ public class SeriesController {
 
         Share share = shareDao.save(new Share(user.get(), serieDao.findById(id).get(), write));
 
-        cookie.setMaxAge(120);
+        cookie.setMaxAge(5000);
         response.addCookie(cookie);
 
         return ResponseEntity.ok().build();
     }
 
-    @GetMapping("/t/test1")
-    public Serie readCookie(String uuid){
+    @GetMapping(value = "/t/test1", produces = { "application/json", "application/xml" })
+    public Serie readCookie(){
         Serie serie = new Serie();
         serie.setDescription("desc");
         serie.setTitle("titre");

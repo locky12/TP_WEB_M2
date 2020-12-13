@@ -16,9 +16,6 @@ public class Serie {
     private String title;
     private String description;
 
-    @OneToMany
-    private List<Event> eventList;
-
     public Serie(String title, String description) {
         this.title = title;
         this.description = description;
@@ -28,6 +25,10 @@ public class Serie {
 
     public UUID getId() {
         return id;
+    }
+
+    public void setId(UUID id) {
+        this.id = id;
     }
 
     public String getTitle() {
@@ -44,13 +45,5 @@ public class Serie {
 
     public void setDescription(String description) {
         this.description = description;
-    }
-
-    public List<Event> getEventList() {
-        return eventList;
-    }
-
-    public void setEventList(List<Event> eventList) {
-        this.eventList = eventList;
     }
 }

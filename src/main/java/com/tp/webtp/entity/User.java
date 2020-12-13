@@ -10,7 +10,7 @@ public class User {
 
     @Id
     @GeneratedValue
-    private UUID uuid;
+    private UUID id;
 
     private String email;
 
@@ -21,7 +21,7 @@ public class User {
     public User() {}
 
     public UUID getId() {
-        return uuid;
+        return id;
     }
 
     public String getEmail() {

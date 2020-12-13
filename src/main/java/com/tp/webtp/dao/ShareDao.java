@@ -1,5 +1,6 @@
 package com.tp.webtp.dao;
 
+import com.tp.webtp.entity.Serie;
 import com.tp.webtp.entity.Share;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.repository.CrudRepository;

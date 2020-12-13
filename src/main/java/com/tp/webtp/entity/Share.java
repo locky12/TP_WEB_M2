@@ -12,7 +12,7 @@ public class Share {
     @ManyToOne
     private User user;
     @ManyToOne
-    @JoinColumn(name = "serieId")
+    @JoinColumn(name = "serie_id")
     private Serie serie;
 
     private Boolean write;

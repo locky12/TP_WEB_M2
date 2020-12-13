@@ -34,7 +34,7 @@ public class UserController {
             return ResponseEntity.notFound().build();
 
         Cookie cookie = new Cookie("user", user.get().getId().toString());
-        cookie.setMaxAge(240);
+        cookie.setMaxAge(5000);
         cookie.setHttpOnly(true);
         cookie.setPath("/");
         response.addCookie(cookie);
