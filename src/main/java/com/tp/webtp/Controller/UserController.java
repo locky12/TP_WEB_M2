@@ -42,6 +42,18 @@ public class UserController {
         return ResponseEntity.ok(user.get());
     }
 
+    @GetMapping("/cookie/deletecookie")
+    public ResponseEntity<Void> deleteCookie(HttpServletResponse response) {
+        Cookie cookie = new Cookie("user", null);
+        cookie.setMaxAge(0);
+        cookie.setHttpOnly(true);
+        cookie.setPath("/");
+        response.addCookie(cookie);
+        return ResponseEntity.ok().build();
+    }
+
+
+
     @PostMapping()
     public ResponseEntity<Void> createUser(HttpServletResponse response, @RequestBody User userR) {
         User user;

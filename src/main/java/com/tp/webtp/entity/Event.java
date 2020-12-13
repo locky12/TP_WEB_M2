@@ -13,8 +13,8 @@ public class Event {
     private UUID id;
 
     @ManyToOne
-    @JoinColumn(name = "id", nullable = false)
-    private Serie Serie;
+    @JoinColumn(name = "serieId")
+    private Serie serie;
 
     private String value;
     private Date date;
@@ -22,6 +22,12 @@ public class Event {
 
     @OneToMany
     private List<Tag> tags;
+
+
+    public Event(String value, String comment) {
+        this.value = value;
+        this.comment = comment;
+    }
 
     public Event(){}
 
@@ -69,5 +75,11 @@ public class Event {
         date.getTime();
     }
 
+    public Serie getSerie() {
+        return serie;
+    }
 
+    public void setSerie(Serie serie) {
+        this.serie = serie;
+    }
 }

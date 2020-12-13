@@ -16,7 +16,7 @@ public class Serie {
     private String title;
     private String description;
 
-    @OneToMany(targetEntity = Event.class, mappedBy = "Serie")
+    @OneToMany
     private List<Event> eventList;
 
     public Serie(String title, String description) {
@@ -44,5 +44,13 @@ public class Serie {
 
     public void setDescription(String description) {
         this.description = description;
+    }
+
+    public List<Event> getEventList() {
+        return eventList;
+    }
+
+    public void setEventList(List<Event> eventList) {
+        this.eventList = eventList;
     }
 }

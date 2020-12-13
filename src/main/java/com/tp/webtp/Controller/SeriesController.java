@@ -32,8 +32,7 @@ public class SeriesController {
     ShareDao shareDao;
     @Autowired
     UserDAO userDao;
-    @Autowired
-    EventDao eventDao;
+
 
 
     @GetMapping("/")
@@ -79,30 +78,7 @@ public class SeriesController {
         return ResponseEntity.ok(serie.get());
     }
 
-    @PostMapping("/{id}")
-    public ResponseEntity<Serie> createEvent(HttpServletResponse response, HttpServletRequest request, @PathVariable("id") UUID id, @RequestBody Event eventR) {
 
-        Cookie cookie = WebUtils.getCookie(request, "user");
-
-        if(cookie == null){
-            //TODO redirect
-            return ResponseEntity.status(418).build();
-        }
-
-        Optional<Serie> serie;
-        serie =  serieDao.findById(id);
-
-        if ( serie == null )
-            return ResponseEntity.notFound().build();
-
-        if(eventR == null)
-            return ResponseEntity.badRequest().build();
-
-        Event event;
-        event = eventDao.save(eventR);
-
-        return  ResponseEntity.created(URI.create("/series/" + serie.get().getId() + "/" + event.getId())).build();
-    }
 
     @PostMapping()
     public ResponseEntity<Void> createSerie(HttpServletResponse response, HttpServletRequest request, @RequestBody Serie serieR) {
@@ -156,7 +132,7 @@ public class SeriesController {
     }
 
     @GetMapping("/t/test1")
-    public Serie readCookie(@CookieValue(value = "user") String uuid){
+    public Serie readCookie(String uuid){
         Serie serie = new Serie();
         serie.setDescription("desc");
         serie.setTitle("titre");
