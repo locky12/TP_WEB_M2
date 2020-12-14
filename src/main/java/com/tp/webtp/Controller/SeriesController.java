@@ -1,27 +1,24 @@
 package com.tp.webtp.Controller;
 
-import com.tp.webtp.dao.EventDao;
 import com.tp.webtp.dao.SerieDao;
 import com.tp.webtp.dao.ShareDao;
 import com.tp.webtp.dao.UserDAO;
-import com.tp.webtp.entity.*;
-import org.apache.logging.log4j.util.SystemPropertiesPropertySource;
+import com.tp.webtp.entity.Serie;
+import com.tp.webtp.entity.Share;
+import com.tp.webtp.entity.User;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import org.springframework.web.util.WebUtils;
 
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.net.URI;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 
 @RestController
 @RequestMapping("/series")
@@ -34,6 +31,12 @@ public class SeriesController {
     @Autowired
     UserDAO userDao;
 
+    /**
+     * Toutes les séries d'un user (possédées et partagées)
+     * @param request
+     * @param response
+     * @return
+     */
     @GetMapping(value = "/", produces = {MediaType.APPLICATION_JSON_VALUE, MediaType.TEXT_HTML_VALUE, MediaType.TEXT_PLAIN_VALUE, MediaType.APPLICATION_XML_VALUE})
     public ResponseEntity<List<Serie>> getSeries(HttpServletRequest request, HttpServletResponse response) {
 
@@ -46,27 +49,122 @@ public class SeriesController {
 
         UUID idUser = UUID.fromString(cookie.getValue());
 
-        List<Share> shareList = shareDao.findByUserId(idUser);
+        //ajout des listes possédées
+        List<Serie> listSerie = new ArrayList<>(serieDao.findByIdOwner(idUser));
 
-        List<Serie> listSerie = new ArrayList<>();
+        //ajout des listes partagées
+        List<Share> shareList = shareDao.findByUserId(idUser);
         for(Share s : shareList){
             listSerie.add(s.getSerie());
         }
 
+        cookie.setMaxAge(5000);
+        cookie.setPath("/");
+        response.addCookie(cookie);
+
         return ResponseEntity.ok(listSerie);
     }
 
-    @GetMapping(value = "/{id}", produces = {MediaType.APPLICATION_JSON_VALUE, MediaType.TEXT_HTML_VALUE, MediaType.TEXT_PLAIN_VALUE, MediaType.APPLICATION_XML_VALUE})
-    public ResponseEntity<Serie> getSerie(@PathVariable("id") UUID id) {
+    /**
+     * Séries possédées
+     * @param request
+     * @param response
+     * @return
+     */
+    @GetMapping(value = "/owned", produces = {MediaType.APPLICATION_JSON_VALUE, MediaType.TEXT_HTML_VALUE, MediaType.TEXT_PLAIN_VALUE, MediaType.APPLICATION_XML_VALUE})
+    public ResponseEntity<List<Serie>> getSeriesOwned(HttpServletRequest request, HttpServletResponse response) {
 
-        if ( !StringUtils.hasText(id.toString()) )
+        Cookie cookie = WebUtils.getCookie(request, "user");
+
+        if(cookie == null){
+            //TODO redirect
+            return ResponseEntity.status(418).build();
+        }
+
+        cookie.setMaxAge(5000);
+        cookie.setPath("/");
+        response.addCookie(cookie);
+        return ResponseEntity.ok(serieDao.findByIdOwner(UUID.fromString(cookie.getValue())));
+    }
+
+    /**
+     * Séries partagées à cet user
+     * @param request
+     * @param response
+     * @return
+     */
+    @GetMapping(value = "/shared", produces = {MediaType.APPLICATION_JSON_VALUE, MediaType.TEXT_HTML_VALUE, MediaType.TEXT_PLAIN_VALUE, MediaType.APPLICATION_XML_VALUE})
+    public ResponseEntity<List<Serie>> getSeriesShared(HttpServletRequest request, HttpServletResponse response) {
+
+        Cookie cookie = WebUtils.getCookie(request, "user");
+
+        if(cookie == null){
+            //TODO redirect
+            return ResponseEntity.status(418).build();
+        }
+
+        UUID idUser = UUID.fromString(cookie.getValue());
+
+        List<Serie> listSerie = new ArrayList<>();
+
+        List<Share> shareList = shareDao.findByUserId(idUser);
+        for(Share s : shareList){
+            listSerie.add(s.getSerie());
+        }
+
+        cookie.setMaxAge(5000);
+        cookie.setPath("/");
+        response.addCookie(cookie);
+
+        return ResponseEntity.ok(listSerie);
+    }
+
+    /**
+     * Série d'id id
+     * @param idSerie
+     * @return
+     */
+    @GetMapping(value = "/{id}", produces = {MediaType.APPLICATION_JSON_VALUE, MediaType.TEXT_HTML_VALUE, MediaType.TEXT_PLAIN_VALUE, MediaType.APPLICATION_XML_VALUE})
+    public ResponseEntity<Serie> getSerie(HttpServletResponse response, HttpServletRequest request, @PathVariable("id") UUID idSerie) {
+
+        Cookie cookie = WebUtils.getCookie(request, "user");
+
+        if(cookie == null){
+            //TODO redirect
+            return ResponseEntity.status(418).build();
+        }
+
+        if ( !StringUtils.hasText(idSerie.toString()) )
             return ResponseEntity.badRequest().build();
 
-        Optional<Serie> serie;
-        serie = serieDao.findById(id);
+        UUID idUser = UUID.fromString(cookie.getValue());
 
+        Optional<Serie> serie = serieDao.findById(idSerie);
+
+        //la série existe ?
         if (!serie.isPresent())
             return ResponseEntity.notFound().build();
+
+        List<Share> shareList = shareDao.findByUserId(idUser);
+        for(Share s : shareList){
+            //la série est partagée à l'user
+            if(idSerie.equals(s.getSerie().getId())) {
+                cookie.setMaxAge(5000);
+                cookie.setPath("/");
+                response.addCookie(cookie);
+
+                return ResponseEntity.ok(serie.get());
+            }
+        }
+
+        //la série n'est pas partagée et n'appartient pas à l'user
+        if(!idUser.equals(serie.get().getIdOwner()))
+            return ResponseEntity.status(HttpStatus.METHOD_NOT_ALLOWED).build();
+
+        //la série appartient à l'user
+        cookie.setMaxAge(5000);
+        cookie.setPath("/");
+        response.addCookie(cookie);
 
         return ResponseEntity.ok(serie.get());
     }
@@ -84,19 +182,18 @@ public class SeriesController {
         if (serieR == null)
             return ResponseEntity.badRequest().build();
 
-        Serie serie;
-        serie = serieDao.save(serieR);
-
-        shareDao.save(new Share(userDao.findById(UUID.fromString(cookie.getValue())).get(), serie, true));
+        serieR.setIdOwner(UUID.fromString(cookie.getValue()));
+        Serie serie = serieDao.save(serieR);
 
         cookie.setMaxAge(5000);
+        cookie.setPath("/");
         response.addCookie(cookie);
 
         return  ResponseEntity.created(URI.create("/series/" + serie.getId())).build();
     }
 
     @PostMapping("/{id}")
-    public ResponseEntity<Void> shareSerie(HttpServletResponse response, HttpServletRequest request, @RequestBody UUID idUser, @RequestBody Boolean write, @PathVariable("id") UUID id) {
+    public ResponseEntity<Void> shareSerie(HttpServletResponse response, HttpServletRequest request, @RequestBody Map<String, String> idAndWrite, @PathVariable("id") UUID id) {
 
         Cookie cookie = WebUtils.getCookie(request, "user");
 
@@ -105,18 +202,26 @@ public class SeriesController {
             return ResponseEntity.status(418).build();
         }
 
-        if (idUser == null)
+        UUID idUserSharing = UUID.fromString(cookie.getValue());
+
+        String idUserToShare = idAndWrite.get("idUser");
+        String write = idAndWrite.get("write");
+        if (!StringUtils.hasText(idUserToShare) || !StringUtils.hasText(write))
             return ResponseEntity.badRequest().build();
 
-        Optional<User> user;
-        user = userDao.findById(idUser);
+        Optional<User> userToShare = userDao.findById(UUID.fromString(idUserToShare));
+        Optional<Serie> serieToShare = serieDao.findById(id);
 
-        if(!user.isPresent())
+        if(!userToShare.isPresent() || !serieToShare.isPresent())
             return ResponseEntity.notFound().build();
 
-        Share share = shareDao.save(new Share(user.get(), serieDao.findById(id).get(), write));
+        if(!idUserSharing.equals(serieToShare.get().getIdOwner()))
+            return ResponseEntity.status(HttpStatus.METHOD_NOT_ALLOWED).build();
+
+        Share share = shareDao.save(new Share(userToShare.get(), serieToShare.get(), Boolean.valueOf(write)));
 
         cookie.setMaxAge(5000);
+        cookie.setPath("/");
         response.addCookie(cookie);
 
         return ResponseEntity.ok().build();

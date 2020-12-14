@@ -1,9 +1,6 @@
 package com.tp.webtp.entity;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
-import javax.persistence.OneToMany;
+import javax.persistence.*;
 import javax.xml.bind.annotation.XmlRootElement;
 import java.util.List;
 import java.util.UUID;
@@ -15,6 +12,9 @@ public class Serie {
     @Id
     @GeneratedValue
     private UUID id;
+
+    @JoinColumn(name = "owner_id")
+    private UUID idOwner;
     private String title;
     private String description;
 
@@ -31,6 +31,14 @@ public class Serie {
 
     public void setId(UUID id) {
         this.id = id;
+    }
+
+    public UUID getIdOwner() {
+        return idOwner;
+    }
+
+    public void setIdOwner(UUID idOwner) {
+        this.idOwner = idOwner;
     }
 
     public String getTitle() {
