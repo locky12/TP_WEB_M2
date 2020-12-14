@@ -90,10 +90,4 @@ public class EventController {
 
         return serie;
     }
-
-
-
-
-
-
 }

@@ -63,7 +63,7 @@ public class SeriesController {
             return ResponseEntity.badRequest().build();
 
         Optional<Serie> serie;
-        serie =  serieDao.findById(id);
+        serie = serieDao.findById(id);
 
         if (!serie.isPresent())
             return ResponseEntity.notFound().build();
@@ -122,9 +122,10 @@ public class SeriesController {
         return ResponseEntity.ok().build();
     }
 
-    @GetMapping(value = "/t/test1", produces = { "application/json", "application/xml" })
+    @GetMapping(value = "/t/test1", produces = { MediaType.APPLICATION_JSON_VALUE, MediaType.TEXT_HTML_VALUE, MediaType.APPLICATION_XML_VALUE, MediaType.TEXT_PLAIN_VALUE })
     public Serie readCookie(){
         Serie serie = new Serie();
+        serie.setId(UUID.randomUUID());
         serie.setDescription("desc");
         serie.setTitle("titre");
         return serie;

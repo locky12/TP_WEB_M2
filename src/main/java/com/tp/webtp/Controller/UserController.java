@@ -51,9 +51,7 @@ public class UserController {
         response.addCookie(cookie);
         return ResponseEntity.ok().build();
     }
-
-
-
+    
     @PostMapping()
     public ResponseEntity<Void> createUser(HttpServletResponse response, @RequestBody User userR) {
         User user;
@@ -63,7 +61,7 @@ public class UserController {
         user = userDAO.save(userR);
 
         Cookie cookie = new Cookie("user", user.getId().toString());
-        cookie.setMaxAge(120); // 1 day
+        cookie.setMaxAge(5000); // 1 day
         cookie.setHttpOnly(true);
         cookie.setPath("/");
         response.addCookie(cookie);

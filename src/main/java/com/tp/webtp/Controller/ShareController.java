@@ -28,8 +28,9 @@ public class ShareController {
         Optional<Share> share;
         share =  shareDao.findById(id);
 
-        if ( share == null )
+        if ( !share.isPresent() )
             return ResponseEntity.notFound().build();
+
         return ResponseEntity.ok(share.get());
     }
 }
