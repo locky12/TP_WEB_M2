@@ -37,10 +37,8 @@ public class SeriesController {
 
         Cookie cookie = WebUtils.getCookie(request, "user");
 
-        if(cookie == null){
-            //TODO redirect
-            return ResponseEntity.status(418).build();
-        }
+        if(cookie == null)
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
 
         UUID idUser = UUID.fromString(cookie.getValue());
 
@@ -57,10 +55,9 @@ public class SeriesController {
 
         Cookie cookie = WebUtils.getCookie(request, "user");
 
-        if(cookie == null){
-            //TODO redirect
-            return ResponseEntity.status(418).build();
-        }
+        if(cookie == null)
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+
 
         cookie.setMaxAge(5000);
         cookie.setPath("/");
@@ -89,10 +86,8 @@ public class SeriesController {
 
         Cookie cookie = WebUtils.getCookie(request, "user");
 
-        if(cookie == null){
-            //TODO redirect
-            return ResponseEntity.status(418).build();
-        }
+        if(cookie == null)
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
 
         if ( !StringUtils.hasText(idSerie.toString()) )
             return ResponseEntity.badRequest().build();
@@ -116,10 +111,8 @@ public class SeriesController {
 
         Cookie cookie = WebUtils.getCookie(request, "user");
 
-        if(cookie == null){
-            //TODO redirect
-            return ResponseEntity.status(418).build();
-        }
+        if(cookie == null)
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
 
         if (serieR == null)
             return ResponseEntity.badRequest().build();
@@ -141,10 +134,8 @@ public class SeriesController {
 
         Cookie cookie = WebUtils.getCookie(request, "user");
 
-        if(cookie == null){
-            //TODO redirect
-            return ResponseEntity.status(418).build();
-        }
+        if(cookie == null)
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
 
         UUID idUserSharing = UUID.fromString(cookie.getValue());
 

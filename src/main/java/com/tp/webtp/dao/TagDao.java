@@ -19,4 +19,7 @@ public interface TagDao extends JpaRepository<Tag, UUID> {
 
     @Query("select t from Tag as t, Share as s where t.event.id=:eventId and t.event.serie.id=s.serie.id and s.user.id=:userId")
     public List<Tag> getTagsByUserIdAndEventId(@Param(value = "eventId") UUID eventId, @Param(value = "userId") UUID userId);
+
+    @Query("select distinct t.tagName from Tag  as t, Share as s where t.event.serie.id=s.serie.id and s.user.id=:userId")
+    public List<String> getTagNamesByUserId(@Param(value = "userId") UUID userId);
 }

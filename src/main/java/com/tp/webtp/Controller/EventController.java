@@ -16,6 +16,9 @@ import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.net.URI;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -38,10 +41,8 @@ public class EventController {
 
         Cookie cookie = WebUtils.getCookie(request, "user");
 
-        if(cookie == null){
-            //TODO redirect
+        if(cookie == null)
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
-        }
 
         UUID idUser = UUID.fromString(cookie.getValue());
 
@@ -61,10 +62,8 @@ public class EventController {
 
         Cookie cookie = WebUtils.getCookie(request, "user");
 
-        if(cookie == null){
-            //TODO redirect
-            return ResponseEntity.status(418).build();
-        }
+        if(cookie == null)
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
 
         UUID idUser = UUID.fromString(cookie.getValue());
 
@@ -77,6 +76,7 @@ public class EventController {
             return ResponseEntity.status(HttpStatus.METHOD_NOT_ALLOWED).build();
 
         eventR.setSerie(serie.get());
+        eventR.setDateModif(Date.from(LocalDateTime.now().atZone(ZoneId.systemDefault()).toInstant()));
         Event event = eventDao.save(eventR);
 
         cookie.setMaxAge(5000);
@@ -90,10 +90,8 @@ public class EventController {
 
         Cookie cookie = WebUtils.getCookie(request, "user");
 
-        if(cookie == null){
-            //TODO redirect
-            return ResponseEntity.status(418).build();
-        }
+        if(cookie == null)
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
 
         UUID idUser = UUID.fromString(cookie.getValue());
 
@@ -110,15 +108,41 @@ public class EventController {
         return ResponseEntity.ok(event.get());
     }
 
+    @PutMapping("{idSerie}/events/{idEvent}/")
+    public ResponseEntity<Event> updateEvent(@PathVariable("idSerie")  UUID idSerie, @PathVariable("idEvent")  UUID idEvent, @RequestBody Event eventR, HttpServletRequest request, HttpServletResponse response) {
+
+        Cookie cookie = WebUtils.getCookie(request, "user");
+
+        if(cookie == null)
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        
+        UUID idUser = UUID.fromString(cookie.getValue());
+
+        Optional<Event> event = eventDao.findById(idEvent);
+        if(!event.isPresent() || !event.get().getSerie().getId().equals(idSerie))
+            return ResponseEntity.badRequest().build();
+
+        if(!shareDao.getFromUserIdAndSerieId(idUser, idSerie).isPresent())
+            return ResponseEntity.status(HttpStatus.METHOD_NOT_ALLOWED).build();
+
+        eventR.setId(idEvent);
+        eventR.setSerie(event.get().getSerie());
+        eventR.setDateModif(Date.from(LocalDateTime.now().atZone(ZoneId.systemDefault()).toInstant()));
+        eventDao.save(eventR);
+
+        cookie.setMaxAge(5000);
+        cookie.setPath("/");
+        response.addCookie(cookie);
+        return ResponseEntity.ok(event.get());
+    }
+
     @GetMapping("{idSerie}/events/{idEvent}/tags")
     public ResponseEntity<List<Tag>> getEventTags(@PathVariable("idSerie")  UUID idSerie, @PathVariable("idEvent")  UUID idEvent, HttpServletRequest request, HttpServletResponse response) {
 
         Cookie cookie = WebUtils.getCookie(request, "user");
 
-        if(cookie == null){
-            //TODO redirect
-            return ResponseEntity.status(418).build();
-        }
+        if(cookie == null)
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
 
         UUID idUser = UUID.fromString(cookie.getValue());
 
@@ -142,10 +166,8 @@ public class EventController {
 
         Cookie cookie = WebUtils.getCookie(request, "user");
 
-        if(cookie == null){
-            //TODO redirect
-            return ResponseEntity.status(418).build();
-        }
+        if(cookie == null)
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
 
         UUID idUser = UUID.fromString(cookie.getValue());
 
@@ -158,6 +180,9 @@ public class EventController {
 
         tagR.setEvent(event.get());
         tagDao.save(tagR);
+
+        event.get().setDateModif(Date.from(LocalDateTime.now().atZone(ZoneId.systemDefault()).toInstant()));
+        eventDao.save(event.get());
 
         cookie.setMaxAge(5000);
         cookie.setPath("/");

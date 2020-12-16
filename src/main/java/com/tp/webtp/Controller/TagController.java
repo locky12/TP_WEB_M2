@@ -9,6 +9,7 @@ import com.tp.webtp.entity.Serie;
 import com.tp.webtp.entity.Share;
 import com.tp.webtp.entity.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
@@ -24,7 +25,6 @@ import java.util.*;
 @RequestMapping("/tags")
 public class TagController {
 
-
     @Autowired
     ShareDao shareDao;
     @Autowired
@@ -34,15 +34,28 @@ public class TagController {
     @Autowired
     TagDao tagDao;
 
+    @GetMapping("/")
+    public ResponseEntity<List<String>> getTags(HttpServletRequest request, HttpServletResponse response) {
+
+        Cookie cookie = WebUtils.getCookie(request, "user");
+
+        if(cookie == null)
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+
+        UUID idUser = UUID.fromString(cookie.getValue());
+
+        List<String> tagList = tagDao.getTagNamesByUserId(idUser);
+
+        return ResponseEntity.ok(tagList);
+    }
+
     @GetMapping("/{tagName}")
     public ResponseEntity<List<Event>> getTagEvents(HttpServletRequest request, HttpServletResponse response, @PathVariable("tagName") String tagName) {
 
         Cookie cookie = WebUtils.getCookie(request, "user");
 
-        if(cookie == null){
-            //TODO redirect
-            return ResponseEntity.status(418).build();
-        }
+        if(cookie == null)
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
 
         UUID idUser = UUID.fromString(cookie.getValue());
 
@@ -53,45 +66,4 @@ public class TagController {
 
         return ResponseEntity.ok(eventList);
     }
-
-    /*@PostMapping()
-    public ResponseEntity<Void> createTag(@RequestBody Tag tag) {
-
-        if ( tag == null )
-            return ResponseEntity.badRequest().build();
-
-        Tag savedTag = tagDao.save(tag);
-        return ResponseEntity.created(URI.create("/Tags/" + savedTag.getTagName())).build();
-    }*/
-
-    /*@PutMapping("/{tagName}")
-    public ResponseEntity<Void> updateTag(@PathVariable("tagName") String tagName, @RequestBody Tag tag) {
-
-        if ( !StringUtils.hasText(String.valueOf(tagName)) )
-            return ResponseEntity.badRequest().build();
-
-        if ( tag == null )
-            return ResponseEntity.badRequest().build();
-
-        if ( !tag.getTagName().equals(tagName) )
-            return ResponseEntity.badRequest().build();
-
-        if ( tagDao.findById(tagName) == null )
-            return ResponseEntity.notFound().build();
-
-        tagDao.save(tag);
-
-        return ResponseEntity.ok().build();
-    }*/
-
-    /*@DeleteMapping("/{tagName}")
-    public ResponseEntity<Void> deleteTag(@PathVariable("tagName") String tagName) {
-
-        if ( !StringUtils.hasText(String.valueOf(tagName)) )
-            return ResponseEntity.badRequest().build();
-
-        tagDao.deleteById(tagName);
-        return ResponseEntity.ok().build();
-
-    }*/
 }
