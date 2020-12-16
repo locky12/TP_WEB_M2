@@ -9,20 +9,22 @@ public class Share {
     @Id
     @GeneratedValue
     private UUID id;
+
     @ManyToOne
     private User user;
+
     @ManyToOne
     @JoinColumn(name = "serie_id")
     private Serie serie;
 
-    private Boolean write;
+    private Role role;
 
     public Share() {}
 
-    public Share(User user, Serie serie, Boolean write) {
+    public Share(User user, Serie serie, Role role) {
         this.user = user;
         this.serie = serie;
-        this.write = write;
+        this.role = role;
     }
 
     public UUID getId() {
@@ -49,12 +51,12 @@ public class Share {
         this.serie = serie;
     }
 
-    public Boolean getWrite() {
-        return write;
+    public Role getRole() {
+        return role;
     }
 
-    public void setWrite(Boolean write) {
-        this.write = write;
+    public void setRole(Role role) {
+        this.role = role;
     }
 }
 

@@ -3,6 +3,7 @@ package com.tp.webtp.Controller;
 import com.tp.webtp.dao.SerieDao;
 import com.tp.webtp.dao.ShareDao;
 import com.tp.webtp.dao.UserDAO;
+import com.tp.webtp.entity.Role;
 import com.tp.webtp.entity.Serie;
 import com.tp.webtp.entity.Share;
 import com.tp.webtp.entity.User;
@@ -31,12 +32,6 @@ public class SeriesController {
     @Autowired
     UserDAO userDao;
 
-    /**
-     * Toutes les séries d'un user (possédées et partagées)
-     * @param request
-     * @param response
-     * @return
-     */
     @GetMapping(value = "/", produces = {MediaType.APPLICATION_JSON_VALUE, MediaType.TEXT_HTML_VALUE, MediaType.TEXT_PLAIN_VALUE, MediaType.APPLICATION_XML_VALUE})
     public ResponseEntity<List<Serie>> getSeries(HttpServletRequest request, HttpServletResponse response) {
 
@@ -49,28 +44,14 @@ public class SeriesController {
 
         UUID idUser = UUID.fromString(cookie.getValue());
 
-        //ajout des listes possédées
-        List<Serie> listSerie = new ArrayList<>(serieDao.findByIdOwner(idUser));
-
-        //ajout des listes partagées
-        List<Share> shareList = shareDao.findByUserId(idUser);
-        for(Share s : shareList){
-            listSerie.add(s.getSerie());
-        }
+        List<Serie> listSerie = shareDao.getSeriesByUserId(idUser);
 
         cookie.setMaxAge(5000);
         cookie.setPath("/");
         response.addCookie(cookie);
-
         return ResponseEntity.ok(listSerie);
     }
 
-    /**
-     * Séries possédées
-     * @param request
-     * @param response
-     * @return
-     */
     @GetMapping(value = "/owned", produces = {MediaType.APPLICATION_JSON_VALUE, MediaType.TEXT_HTML_VALUE, MediaType.TEXT_PLAIN_VALUE, MediaType.APPLICATION_XML_VALUE})
     public ResponseEntity<List<Serie>> getSeriesOwned(HttpServletRequest request, HttpServletResponse response) {
 
@@ -84,15 +65,9 @@ public class SeriesController {
         cookie.setMaxAge(5000);
         cookie.setPath("/");
         response.addCookie(cookie);
-        return ResponseEntity.ok(serieDao.findByIdOwner(UUID.fromString(cookie.getValue())));
+        return ResponseEntity.ok(shareDao.getSeriesByUserIdAndRole(UUID.fromString(cookie.getValue()), Role.OWNER));
     }
 
-    /**
-     * Séries partagées à cet user
-     * @param request
-     * @param response
-     * @return
-     */
     @GetMapping(value = "/shared", produces = {MediaType.APPLICATION_JSON_VALUE, MediaType.TEXT_HTML_VALUE, MediaType.TEXT_PLAIN_VALUE, MediaType.APPLICATION_XML_VALUE})
     public ResponseEntity<List<Serie>> getSeriesShared(HttpServletRequest request, HttpServletResponse response) {
 
@@ -103,27 +78,12 @@ public class SeriesController {
             return ResponseEntity.status(418).build();
         }
 
-        UUID idUser = UUID.fromString(cookie.getValue());
-
-        List<Serie> listSerie = new ArrayList<>();
-
-        List<Share> shareList = shareDao.findByUserId(idUser);
-        for(Share s : shareList){
-            listSerie.add(s.getSerie());
-        }
-
         cookie.setMaxAge(5000);
         cookie.setPath("/");
         response.addCookie(cookie);
-
-        return ResponseEntity.ok(listSerie);
+        return ResponseEntity.ok(shareDao.getSeriesByUserIdAndNotRole(UUID.fromString(cookie.getValue()), Role.OWNER));
     }
 
-    /**
-     * Série d'id id
-     * @param idSerie
-     * @return
-     */
     @GetMapping(value = "/{id}", produces = {MediaType.APPLICATION_JSON_VALUE, MediaType.TEXT_HTML_VALUE, MediaType.TEXT_PLAIN_VALUE, MediaType.APPLICATION_XML_VALUE})
     public ResponseEntity<Serie> getSerie(HttpServletResponse response, HttpServletRequest request, @PathVariable("id") UUID idSerie) {
 
@@ -139,29 +99,11 @@ public class SeriesController {
 
         UUID idUser = UUID.fromString(cookie.getValue());
 
-        Optional<Serie> serie = serieDao.findById(idSerie);
+        Optional<Serie> serie = shareDao.getFromUserIdAndSerieId(idUser, idSerie);
 
-        //la série existe ?
-        if (!serie.isPresent())
+        if(!serie.isPresent())
             return ResponseEntity.notFound().build();
 
-        List<Share> shareList = shareDao.findByUserId(idUser);
-        for(Share s : shareList){
-            //la série est partagée à l'user
-            if(idSerie.equals(s.getSerie().getId())) {
-                cookie.setMaxAge(5000);
-                cookie.setPath("/");
-                response.addCookie(cookie);
-
-                return ResponseEntity.ok(serie.get());
-            }
-        }
-
-        //la série n'est pas partagée et n'appartient pas à l'user
-        if(!idUser.equals(serie.get().getIdOwner()))
-            return ResponseEntity.status(HttpStatus.METHOD_NOT_ALLOWED).build();
-
-        //la série appartient à l'user
         cookie.setMaxAge(5000);
         cookie.setPath("/");
         response.addCookie(cookie);
@@ -182,8 +124,10 @@ public class SeriesController {
         if (serieR == null)
             return ResponseEntity.badRequest().build();
 
-        serieR.setIdOwner(UUID.fromString(cookie.getValue()));
+        UUID userId = UUID.fromString(cookie.getValue());
+
         Serie serie = serieDao.save(serieR);
+        shareDao.save(new Share(userDao.findById(userId).get(), serie, Role.OWNER));
 
         cookie.setMaxAge(5000);
         cookie.setPath("/");
@@ -193,7 +137,7 @@ public class SeriesController {
     }
 
     @PostMapping("/{id}")
-    public ResponseEntity<Void> shareSerie(HttpServletResponse response, HttpServletRequest request, @RequestBody Map<String, String> idAndWrite, @PathVariable("id") UUID id) {
+    public ResponseEntity<Void> shareSerie(HttpServletResponse response, HttpServletRequest request, @RequestBody Map<String, String> idAndRole, @PathVariable("id") UUID id) {
 
         Cookie cookie = WebUtils.getCookie(request, "user");
 
@@ -204,9 +148,9 @@ public class SeriesController {
 
         UUID idUserSharing = UUID.fromString(cookie.getValue());
 
-        String idUserToShare = idAndWrite.get("idUser");
-        String write = idAndWrite.get("write");
-        if (!StringUtils.hasText(idUserToShare) || !StringUtils.hasText(write))
+        String idUserToShare = idAndRole.get("idUser");
+        String role = idAndRole.get("role");
+        if (!StringUtils.hasText(idUserToShare) || !StringUtils.hasText(role))
             return ResponseEntity.badRequest().build();
 
         Optional<User> userToShare = userDao.findById(UUID.fromString(idUserToShare));
@@ -215,10 +159,7 @@ public class SeriesController {
         if(!userToShare.isPresent() || !serieToShare.isPresent())
             return ResponseEntity.notFound().build();
 
-        if(!idUserSharing.equals(serieToShare.get().getIdOwner()))
-            return ResponseEntity.status(HttpStatus.METHOD_NOT_ALLOWED).build();
-
-        Share share = shareDao.save(new Share(userToShare.get(), serieToShare.get(), Boolean.valueOf(write)));
+        Share share = shareDao.save(new Share(userToShare.get(), serieToShare.get(), Role.valueOf(role.toUpperCase())));
 
         cookie.setMaxAge(5000);
         cookie.setPath("/");
@@ -228,11 +169,12 @@ public class SeriesController {
     }
 
     @GetMapping(value = "/t/test1", produces = { MediaType.APPLICATION_JSON_VALUE, MediaType.TEXT_HTML_VALUE, MediaType.APPLICATION_XML_VALUE, MediaType.TEXT_PLAIN_VALUE })
-    public Serie readCookie(){
+    public List<Share> readCookie(){
         Serie serie = new Serie();
         serie.setId(UUID.randomUUID());
         serie.setDescription("desc");
         serie.setTitle("titre");
-        return serie;
+
+        return shareDao.getAll();
     }
 }

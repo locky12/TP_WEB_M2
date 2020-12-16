@@ -1,5 +1,7 @@
 package com.tp.webtp.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import javax.persistence.*;
 import javax.xml.bind.annotation.XmlRootElement;
 import java.util.List;
@@ -13,8 +15,6 @@ public class Serie {
     @GeneratedValue
     private UUID id;
 
-    @JoinColumn(name = "owner_id")
-    private UUID idOwner;
     private String title;
     private String description;
 
@@ -31,14 +31,6 @@ public class Serie {
 
     public void setId(UUID id) {
         this.id = id;
-    }
-
-    public UUID getIdOwner() {
-        return idOwner;
-    }
-
-    public void setIdOwner(UUID idOwner) {
-        this.idOwner = idOwner;
     }
 
     public String getTitle() {

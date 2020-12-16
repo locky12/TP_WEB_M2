@@ -10,7 +10,8 @@ public class Tag {
 
     @Id
     @GeneratedValue
-    private UUID uuid;
+    private UUID id;
+
     private String tagName;
 
     @ManyToOne
@@ -24,12 +25,12 @@ public class Tag {
 
     public Tag() {}
 
-    public UUID getUuid() {
-        return uuid;
+    public UUID getId() {
+        return id;
     }
 
-    public void setUuid(UUID uuid) {
-        this.uuid = uuid;
+    public void setId(UUID id) {
+        this.id = id;
     }
 
     public String getTagName() {

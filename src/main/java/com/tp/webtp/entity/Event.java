@@ -1,30 +1,31 @@
 package com.tp.webtp.entity;
 
+import net.minidev.json.annotate.JsonIgnore;
+
 import javax.persistence.*;
-import java.util.Date;
-import java.util.List;
-import java.util.UUID;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.util.*;
 
 @Entity
 public class Event {
 
+
     @Id
     @GeneratedValue
+    @JsonIgnore
     private UUID id;
 
     @ManyToOne
-    @JoinColumn(name = "serieId")
+    @JoinColumn(name = "serie")
     private Serie serie;
 
     private String value;
     private Date date;
     private String comment;
 
-    @OneToMany
-    private List<Tag> tags;
-
-
     public Event(String value, String comment) {
+        this.date = Date.from(LocalDateTime.now().atZone(ZoneId.systemDefault()).toInstant());
         this.value = value;
         this.comment = comment;
     }
@@ -61,14 +62,6 @@ public class Event {
 
     public void setComment(String comment) {
         this.comment = comment;
-    }
-
-    public List<Tag> getTags() {
-        return tags;
-    }
-
-    public void setTags(List<Tag> tags) {
-        this.tags = tags;
     }
 
     public void get(){

@@ -10,5 +10,4 @@ import java.util.UUID;
 
 @Repository
 public interface SerieDao extends JpaRepository<Serie, UUID> {
-    public List<Serie> findByIdOwner(UUID idOwner);
 }
