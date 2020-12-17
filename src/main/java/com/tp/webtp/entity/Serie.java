@@ -1,10 +1,9 @@
 package com.tp.webtp.entity;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-
-import javax.persistence.*;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
 import javax.xml.bind.annotation.XmlRootElement;
-import java.util.List;
 import java.util.UUID;
 
 @Entity

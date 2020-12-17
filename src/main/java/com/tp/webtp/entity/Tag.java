@@ -18,6 +18,12 @@ public class Tag {
     @JoinColumn(name = "event_id")
     private Event event;
 
+    public Tag(String tagName, Event event) {
+        Assert.hasText(tagName, "tag cannot be null,empty or blank");
+        this.tagName = tagName;
+        this.event = event;
+    }
+
     public Tag(String tagName) {
         Assert.hasText(tagName, "tag cannot be null,empty or blank");
         this.tagName = tagName;

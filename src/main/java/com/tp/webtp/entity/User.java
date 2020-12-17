@@ -9,12 +9,17 @@ import java.util.UUID;
 public class User {
 
     @Id
-    @GeneratedValue
+    //@GeneratedValue
     private UUID id;
 
     private String email;
 
-    public User( String email) {
+    public User(UUID id, String email) {
+        this.id = id;
+        this.email = email;
+    }
+
+    public User(String email) {
         this.email = email;
     }
 

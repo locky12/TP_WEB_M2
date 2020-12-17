@@ -8,6 +8,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
@@ -22,4 +23,11 @@ public interface TagDao extends JpaRepository<Tag, UUID> {
 
     @Query("select distinct t.tagName from Tag  as t, Share as s where t.event.serie.id=s.serie.id and s.user.id=:userId")
     public List<String> getTagNamesByUserId(@Param(value = "userId") UUID userId);
+
+    @Query("select max(t.event.date) from Tag as t, Share as s where t.tagName=:tagName and t.event.serie.id=s.serie.id and s.user.id=:userId")
+    public Date getEventsDateByTagNameAndUserId(@Param(value = "tagName") String tagName, @Param(value = "userId") UUID userId);
+
+    @Query("select count(t) from Tag as t, Share as s where t.tagName=:tagName and t.event.serie.id=s.serie.id and s.user.id=:userId and t.event.date>:debut and t.event.date<:fin")
+    public Integer getTagFrequencyBetweenDates(@Param(value = "tagName") String tagName, @Param(value = "userId") UUID userId,
+                                               @Param(value = "debut") Date debut, @Param(value = "fin") Date fin);
 }

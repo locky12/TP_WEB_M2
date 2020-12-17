@@ -1,6 +1,5 @@
 package com.tp.webtp.Controller;
 
-
 import com.tp.webtp.dao.EventDao;
 import com.tp.webtp.dao.SerieDao;
 import com.tp.webtp.dao.ShareDao;
@@ -188,10 +187,5 @@ public class EventController {
         cookie.setPath("/");
         response.addCookie(cookie);
         return ResponseEntity.created(URI.create("/series/" + event.get().getSerie().getId() + "/" + event.get().getId() + "/tags")).build();
-    }
-
-    @GetMapping("e/t")
-    public Event test(){
-        return new Event("12","un commentaire");
     }
 }

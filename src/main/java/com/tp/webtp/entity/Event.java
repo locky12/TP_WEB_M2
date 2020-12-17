@@ -26,6 +26,14 @@ public class Event {
 
     private Date dateModif;
 
+    public Event(Serie serie, String value, String comment) {
+        this.serie = serie;
+        this.value = value;
+        this.comment = comment;
+        this.date = Date.from(LocalDateTime.now().atZone(ZoneId.systemDefault()).toInstant());
+        this.dateModif = Date.from(LocalDateTime.now().atZone(ZoneId.systemDefault()).toInstant());
+    }
+
     public Event(String value, String comment) {
         this.date = Date.from(LocalDateTime.now().atZone(ZoneId.systemDefault()).toInstant());
         this.value = value;
