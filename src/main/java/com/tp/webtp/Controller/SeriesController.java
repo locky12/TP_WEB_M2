@@ -11,8 +11,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Controller;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.util.WebUtils;
 
 import javax.servlet.http.Cookie;
@@ -21,7 +23,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.net.URI;
 import java.util.*;
 
-@RestController
+@Controller
 @RequestMapping("/series")
 public class SeriesController {
 
@@ -78,29 +80,34 @@ public class SeriesController {
         return ResponseEntity.ok(shareDao.getSeriesByUserIdAndNotRole(UUID.fromString(cookie.getValue()), Role.OWNER));
     }
 
-    @GetMapping(value = "/{id}", produces = {MediaType.APPLICATION_JSON_VALUE, MediaType.TEXT_HTML_VALUE, MediaType.TEXT_PLAIN_VALUE, MediaType.APPLICATION_XML_VALUE})
-    public ResponseEntity<Serie> getSerie(HttpServletResponse response, HttpServletRequest request, @PathVariable("id") UUID idSerie) {
+    @GetMapping(value = "/{id}")
+//    @RequestMapping(value = "/{id}")
+    public ModelAndView getSerie(HttpServletResponse response, HttpServletRequest request, @PathVariable("id") UUID idSerie) {
 
         Cookie cookie = WebUtils.getCookie(request, "user");
 
-        if(cookie == null)
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
-
-        if ( !StringUtils.hasText(idSerie.toString()) )
-            return ResponseEntity.badRequest().build();
+//        if(cookie == null)
+//            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+//
+//        if ( !StringUtils.hasText(idSerie.toString()) )
+//            return ResponseEntity.badRequest().build();
 
         UUID idUser = UUID.fromString(cookie.getValue());
 
         Optional<Serie> serie = shareDao.getFromUserIdAndSerieId(idUser, idSerie);
 
-        if(!serie.isPresent())
-            return ResponseEntity.notFound().build();
+//        if(!serie.isPresent())
+//            return ResponseEntity.notFound().build();
 
         cookie.setMaxAge(5000);
         cookie.setPath("/");
         response.addCookie(cookie);
-
-        return ResponseEntity.ok(serie.get());
+        System.out.println(serie);
+        Serie serie1 = serie.get();
+        ModelAndView modelAndView = new ModelAndView("serie").addObject("serie",serie.get());
+        System.out.println(modelAndView);
+        return modelAndView;
+//        return ResponseEntity.ok(modelAndView);
     }
 
     @PostMapping()

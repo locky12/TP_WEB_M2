@@ -6,21 +6,33 @@ import com.tp.webtp.entity.Event;
 import com.tp.webtp.entity.Tag;
 import com.tp.webtp.entity.User;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.servlet.ModelAndView;
 
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Iterator;
 
 
-@RestController
+@Controller
+
 public class ControllerTest {
 
-    @Autowired
-    EventDao eventDAO;
 
-    @GetMapping("/test")
+    @RequestMapping(value = { "/", "/index" }, method = RequestMethod.GET)
+    public ModelAndView index(Model model){
+        String message = "Hello Spring Boot + JSP";
+
+//        model.addAttribute("message", message);
+        return new ModelAndView("index");
+    };
+   /* @GetMapping("/test")
     public String get () {
         Event tag = new Event();
         Event tag1 = new Event();
@@ -39,5 +51,5 @@ public class ControllerTest {
     public User getTest(){
         User user = new User();
         return user;
-    }
+    }*/
 }

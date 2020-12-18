@@ -1,0 +1,68 @@
+<!--<beans xmlns="http://www.springframework.org/schema/beans"-->
+<!--	xmlns:context="http://www.springframework.org/schema/context"-->
+<!--	xmlns:mvc="http://www.springframework.org/schema/mvc" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"-->
+<!--	xsi:schemaLocation="-->
+<!--        http://www.springframework.org/schema/beans     -->
+<!--        http://www.springframework.org/schema/beans/spring-beans-3.0.xsd-->
+<!--        http://www.springframework.org/schema/context -->
+<!--        http://www.springframework.org/schema/context/spring-context-3.0.xsd-->
+<!--        http://www.springframework.org/schema/mvc-->
+<!--        http://www.springframework.org/schema/mvc/spring-mvc-3.0.xsd">-->
+
+<!--	<context:component-scan base-package="com.tp.webtp.controller" />-->
+
+<!--	<mvc:annotation-driven />-->
+
+<!--	<bean class="org.springframework.web.servlet.view.ContentNegotiatingViewResolver">-->
+<!--		<property name="order" value="1" />-->
+<!--		<property name="mediaTypes">-->
+<!--			<map>-->
+<!--				<entry key="json" value="application/json" />-->
+<!--				<entry key="xml" value="application/xml" />-->
+<!--				<entry key="html" value="text/html" />-->
+<!--			</map>-->
+<!--		</property>-->
+
+<!--		<property name="defaultViews">-->
+<!--			<list>-->
+<!--				&lt;!&ndash; JSON View &ndash;&gt;-->
+<!--				<bean-->
+<!--					class="org.springframework.web.servlet.view.json.MappingJacksonJsonView">-->
+<!--				</bean>-->
+
+
+
+<!--				&lt;!&ndash; JAXB XML View &ndash;&gt;-->
+<!--				<bean class="org.springframework.web.servlet.view.xml.MarshallingView">-->
+<!--					<constructor-arg>-->
+<!--						<bean class="org.springframework.oxm.jaxb.Jaxb2Marshaller">-->
+<!--							<property name="classesToBeBound">-->
+<!--								<list>-->
+<!--									<value>com.tp.webtp.entity.Serie</value>-->
+<!--								</list>-->
+<!--							</property>-->
+<!--						</bean>-->
+<!--					</constructor-arg>-->
+<!--				</bean>-->
+<!--			</list>-->
+<!--		</property>-->
+<!--&lt;!&ndash;		<property name="ignoreAcceptHeader" value="true" />&ndash;&gt;-->
+
+<!--	</bean>-->
+
+<!--	&lt;!&ndash; If no extension matched, use JSP view &ndash;&gt;-->
+<!--	<bean-->
+<!--		class="org.springframework.web.servlet.view.InternalResourceViewResolver">-->
+<!--		<property name="order" value="2" />-->
+<!--		<property name="prefix">-->
+<!--			<value>/WEB-INF/jsp/</value>-->
+<!--		</property>-->
+<!--		<property name="suffix">-->
+<!--			<value>.jsp</value>-->
+<!--		</property>-->
+<!--	</bean>-->
+
+<!--</beans>-->
+
+
+

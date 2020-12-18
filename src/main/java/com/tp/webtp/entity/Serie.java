@@ -3,6 +3,7 @@ package com.tp.webtp.entity;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import java.util.UUID;
 
@@ -27,7 +28,7 @@ public class Serie {
     public UUID getId() {
         return id;
     }
-
+    @XmlElement
     public void setId(UUID id) {
         this.id = id;
     }
@@ -35,7 +36,7 @@ public class Serie {
     public String getTitle() {
         return title;
     }
-
+    @XmlElement
     public void setTitle(String title) {
         this.title = title;
     }
@@ -43,8 +44,17 @@ public class Serie {
     public String getDescription() {
         return description;
     }
-
+    @XmlElement
     public void setDescription(String description) {
         this.description = description;
+    }
+
+    @Override
+    public String toString() {
+        return "Serie{" +
+                "id=" + id +
+                ", title='" + title + '\'' +
+                ", description='" + description + '\'' +
+                '}';
     }
 }
