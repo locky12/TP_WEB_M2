@@ -5,11 +5,13 @@ import com.tp.webtp.dao.SerieDao;
 import com.tp.webtp.dao.ShareDao;
 import com.tp.webtp.dao.TagDao;
 import com.tp.webtp.entity.Event;
+import com.tp.webtp.entity.Tags;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.util.WebUtils;
 
 import javax.servlet.http.Cookie;
@@ -36,18 +38,18 @@ public class TagController {
     TagDao tagDao;
 
     @GetMapping("/")
-    public ResponseEntity<List<String>> getTags(HttpServletRequest request, HttpServletResponse response) {
-
+    public ModelAndView getTags(HttpServletRequest request, HttpServletResponse response) {
+        ModelAndView modelAndView = new ModelAndView("tags");
         Cookie cookie = WebUtils.getCookie(request, "user");
 
-        if(cookie == null)
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+//        if(cookie == null)
+//            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
 
         UUID idUser = UUID.fromString(cookie.getValue());
-
-        List<String> tagList = tagDao.getTagNamesByUserId(idUser);
-
-        return ResponseEntity.ok(tagList);
+        Tags tags = new Tags();
+        tags.setList(tagDao.getTagNamesByUserId(idUser));
+        modelAndView.addObject("tags",tags.getList());
+        return modelAndView;
     }
 
     @GetMapping("/{tagName}")

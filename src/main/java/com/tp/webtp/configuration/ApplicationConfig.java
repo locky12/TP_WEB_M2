@@ -1,6 +1,8 @@
 package com.tp.webtp.configuration;
 
 import com.tp.webtp.entity.Serie;
+import com.tp.webtp.entity.Tag;
+import com.tp.webtp.entity.Tags;
 import com.tp.webtp.resolver.JsonViewResolver;
 import com.tp.webtp.resolver.XmlViewResolver;
 import org.springframework.context.annotation.Bean;
@@ -32,6 +34,7 @@ public class ApplicationConfig implements WebMvcConfigurer {
         List<ViewResolver> resolvers = new ArrayList< ViewResolver >();
 
         resolvers.add(xmlViewResolver());
+//        resolvers.add(xmlStringViewResolver());
         resolvers.add(jsonViewResolver());
         resolvers.add(jspViewResolver());
 
@@ -42,10 +45,17 @@ public class ApplicationConfig implements WebMvcConfigurer {
     @Bean
     public ViewResolver xmlViewResolver() {
         Jaxb2Marshaller marshaller = new Jaxb2Marshaller();
-        marshaller.setClassesToBeBound(Serie.class);
+        marshaller.setClassesToBeBound(String.class,Serie.class, Tags.class,Tag.class);
 
         return new XmlViewResolver(marshaller);
     }
+//    @Bean
+//    public ViewResolver xmlStringViewResolver() {
+//        Jaxb2Marshaller marshaller = new Jaxb2Marshaller();
+//        marshaller.setClassesToBeBound(String.class);
+//
+//        return new XmlViewResolver(marshaller);
+//    }
 
     @Bean
     public ViewResolver jsonViewResolver() {

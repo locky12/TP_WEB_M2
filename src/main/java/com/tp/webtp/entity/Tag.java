@@ -3,9 +3,11 @@ package com.tp.webtp.entity;
 import org.springframework.util.Assert;
 
 import javax.persistence.*;
+import javax.xml.bind.annotation.XmlRootElement;
 import java.util.UUID;
 
 @Entity
+@XmlRootElement
 public class Tag {
 
     @Id

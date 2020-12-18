@@ -28,7 +28,7 @@ public class Serie {
     public UUID getId() {
         return id;
     }
-    @XmlElement
+//    @XmlElement
     public void setId(UUID id) {
         this.id = id;
     }
@@ -36,7 +36,7 @@ public class Serie {
     public String getTitle() {
         return title;
     }
-    @XmlElement
+//    @XmlElement
     public void setTitle(String title) {
         this.title = title;
     }
@@ -44,7 +44,7 @@ public class Serie {
     public String getDescription() {
         return description;
     }
-    @XmlElement
+//    @XmlElement
     public void setDescription(String description) {
         this.description = description;
     }
