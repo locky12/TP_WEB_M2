@@ -6,6 +6,7 @@ import com.tp.webtp.dao.ShareDao;
 import com.tp.webtp.dao.TagDao;
 import com.tp.webtp.entity.Event;
 import com.tp.webtp.entity.Tags;
+import com.tp.webtp.model.JaxbList;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -47,8 +48,9 @@ public class TagController {
 
         UUID idUser = UUID.fromString(cookie.getValue());
         Tags tags = new Tags();
+
         tags.setList(tagDao.getTagNamesByUserId(idUser));
-        modelAndView.addObject("tags",tags.getList());
+        modelAndView.addObject("tags",tags);
         return modelAndView;
     }
 
