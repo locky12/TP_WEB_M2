@@ -8,6 +8,7 @@ import com.tp.webtp.entity.Event;
 import com.tp.webtp.entity.Tags;
 import com.tp.webtp.model.ErrorModel;
 import com.tp.webtp.model.JaxbList;
+import com.tp.webtp.service.TagService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -39,17 +40,24 @@ public class TagController {
     @Autowired
     TagDao tagDao;
 
-    @GetMapping("/")
+    @Autowired
+    TagService tagService;
+
+    @GetMapping
     public ModelAndView getTags(HttpServletRequest request, HttpServletResponse response) {
         ModelAndView modelAndView;
         Cookie cookie = WebUtils.getCookie(request, "user");
         if(cookie == null)
-            return ErrorModel.createErrorModel(HttpStatus.NOT_FOUND);
+            return ErrorModel.createErrorModel(HttpStatus.UNAUTHORIZED);
 
         UUID idUser = UUID.fromString(cookie.getValue());
-        Tags tags = new Tags();
 
-        tags.setList(tagDao.getTagNamesByUserId(idUser));
+
+        Tags tags = new Tags(tagDao.getTagNamesByUserId(idUser));
+        if (tags == null)
+            return ErrorModel.createErrorModel(HttpStatus.NOT_FOUND);
+
+
         modelAndView = new ModelAndView("tags").addObject("tags",tags);
         return modelAndView;
     }
