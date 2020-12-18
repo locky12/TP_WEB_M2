@@ -39,9 +39,10 @@ public class TagController {
     EventDao eventDao;
     @Autowired
     TagDao tagDao;
-
     @Autowired
     TagService tagService;
+
+
 
     @GetMapping
     public ModelAndView getTags(HttpServletRequest request, HttpServletResponse response) {
@@ -53,12 +54,12 @@ public class TagController {
         UUID idUser = UUID.fromString(cookie.getValue());
 
 
-        Tags tags = new Tags(tagDao.getTagNamesByUserId(idUser));
+        Tags tags = new Tags(tagService.getTagByUserId(idUser));
         if (tags == null)
             return ErrorModel.createErrorModel(HttpStatus.NOT_FOUND);
 
-
-        modelAndView = new ModelAndView("tags").addObject("tags",tags);
+        System.out.println("lalalalappppp" + tags);
+        modelAndView = new ModelAndView("tags").addObject("tags",tags.getList());
         return modelAndView;
     }
 

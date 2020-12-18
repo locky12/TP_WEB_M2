@@ -6,7 +6,14 @@
 
    </head>
    <body>
-      <h1>Welcome</h1>
+      <h1>Welcome to SerieTime application </h1>
+      <ul>
+        <li><a href="${pageContext.request.contextPath}/series/">My Series</a></li>
+        <li><a href="${pageContext.request.contextPath}/tags/">My Tags</a></li>
+      </ul>
+
+
+
 
 
 

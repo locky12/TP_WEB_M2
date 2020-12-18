@@ -4,7 +4,7 @@
 <html>
   <head>
     <meta charset="UTF-8" />
-    <title>Person List</title>
+    <title>Tags List</title>
 
   </head>
   <body>
