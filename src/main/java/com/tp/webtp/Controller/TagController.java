@@ -6,6 +6,7 @@ import com.tp.webtp.dao.ShareDao;
 import com.tp.webtp.dao.TagDao;
 import com.tp.webtp.entity.Event;
 import com.tp.webtp.entity.Tags;
+import com.tp.webtp.model.ErrorModel;
 import com.tp.webtp.model.JaxbList;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -40,17 +41,16 @@ public class TagController {
 
     @GetMapping("/")
     public ModelAndView getTags(HttpServletRequest request, HttpServletResponse response) {
-        ModelAndView modelAndView = new ModelAndView("tags");
+        ModelAndView modelAndView;
         Cookie cookie = WebUtils.getCookie(request, "user");
-
-//        if(cookie == null)
-//            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        if(cookie == null)
+            return ErrorModel.createErrorModel(HttpStatus.NOT_FOUND);
 
         UUID idUser = UUID.fromString(cookie.getValue());
         Tags tags = new Tags();
 
         tags.setList(tagDao.getTagNamesByUserId(idUser));
-        modelAndView.addObject("tags",tags);
+        modelAndView = new ModelAndView("tags").addObject("tags",tags);
         return modelAndView;
     }
 
