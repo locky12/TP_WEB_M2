@@ -5,10 +5,13 @@ import com.tp.webtp.dao.SerieDao;
 import com.tp.webtp.dao.ShareDao;
 import com.tp.webtp.dao.TagDao;
 import com.tp.webtp.entity.*;
+import com.tp.webtp.model.ErrorModel;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.util.WebUtils;
 
 import javax.servlet.http.Cookie;
@@ -35,25 +38,31 @@ public class EventController {
     @Autowired
     TagDao tagDao;
 
-    @GetMapping("{idSerie}/events/")
-    public ResponseEntity<List<Event>> getEvents( @PathVariable("idSerie")  UUID idSerie, HttpServletRequest request, HttpServletResponse response) {
+    @GetMapping("{idSerie}/events")
+    public ModelAndView getEvents( @PathVariable("idSerie")  UUID idSerie, HttpServletRequest request, HttpServletResponse response) {
+
+        ModelAndView modelAndView;
 
         Cookie cookie = WebUtils.getCookie(request, "user");
-
         if(cookie == null)
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
-
+            return ErrorModel.createErrorModel(HttpStatus.UNAUTHORIZED);
         UUID idUser = UUID.fromString(cookie.getValue());
 
         Optional<Serie> serie = shareDao.getFromUserIdAndSerieId(idUser, idSerie);
 
         if (!serie.isPresent())
-            return ResponseEntity.notFound().build();
+            return ErrorModel.createErrorModel(HttpStatus.NOT_FOUND);
+
+        List<Event> eventList = eventDao.findBySerieId(idSerie);
+
+        modelAndView = new ModelAndView("events");
+        modelAndView.addObject("events", eventList);
+        modelAndView.addObject("serie", serie.get());
 
         cookie.setMaxAge(5000);
         cookie.setPath("/");
         response.addCookie(cookie);
-        return ResponseEntity.ok(eventDao.findBySerieId(idSerie));
+        return modelAndView;
     }
 
     @PostMapping("{idSerie}/events")
@@ -84,30 +93,36 @@ public class EventController {
         return ResponseEntity.created(URI.create("/series/" + serie.get().getId() + "/" + event.getId())).build();
     }
 
-    @GetMapping("{idSerie}/events/{idEvent}/")
-    public ResponseEntity<Event> getEvent(@PathVariable("idSerie")  UUID idSerie, @PathVariable("idEvent")  UUID idEvent, HttpServletRequest request, HttpServletResponse response) {
+    @GetMapping("{idSerie}/events/{idEvent}")
+    public ModelAndView getEvent(@PathVariable("idSerie")  UUID idSerie, @PathVariable("idEvent")  UUID idEvent, HttpServletRequest request, HttpServletResponse response) {
 
+        ModelAndView modelAndView;
         Cookie cookie = WebUtils.getCookie(request, "user");
-
         if(cookie == null)
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+            return ErrorModel.createErrorModel(HttpStatus.UNAUTHORIZED);
 
         UUID idUser = UUID.fromString(cookie.getValue());
 
         Optional<Event> event = eventDao.findById(idEvent);
         if(!event.isPresent() || !event.get().getSerie().getId().equals(idSerie))
-            return ResponseEntity.badRequest().build();
+            return ErrorModel.createErrorModel(HttpStatus.BAD_REQUEST);
 
         if(!shareDao.getFromUserIdAndSerieId(idUser, idSerie).isPresent())
-            return ResponseEntity.status(HttpStatus.METHOD_NOT_ALLOWED).build();
+            return ErrorModel.createErrorModel(HttpStatus.METHOD_NOT_ALLOWED);
+
+        List<Tag> tagList = tagDao.getTagsByUserIdAndEventId(idEvent, idUser);
+
+        modelAndView = new ModelAndView("event");
+        modelAndView.addObject("event", event.get());
+        modelAndView.addObject("tags", tagList);
 
         cookie.setMaxAge(5000);
         cookie.setPath("/");
         response.addCookie(cookie);
-        return ResponseEntity.ok(event.get());
+        return modelAndView;
     }
 
-    @PutMapping("{idSerie}/events/{idEvent}/")
+    @PutMapping("{idSerie}/events/{idEvent}")
     public ResponseEntity<Event> updateEvent(@PathVariable("idSerie")  UUID idSerie, @PathVariable("idEvent")  UUID idEvent, @RequestBody Event eventR, HttpServletRequest request, HttpServletResponse response) {
 
         Cookie cookie = WebUtils.getCookie(request, "user");
@@ -136,28 +151,30 @@ public class EventController {
     }
 
     @GetMapping("{idSerie}/events/{idEvent}/tags")
-    public ResponseEntity<List<Tag>> getEventTags(@PathVariable("idSerie")  UUID idSerie, @PathVariable("idEvent")  UUID idEvent, HttpServletRequest request, HttpServletResponse response) {
+    public ModelAndView getEventTags(@PathVariable("idSerie")  UUID idSerie, @PathVariable("idEvent")  UUID idEvent, HttpServletRequest request, HttpServletResponse response) {
+        ModelAndView modelAndView;
 
         Cookie cookie = WebUtils.getCookie(request, "user");
-
         if(cookie == null)
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
-
+            return ErrorModel.createErrorModel(HttpStatus.UNAUTHORIZED);
         UUID idUser = UUID.fromString(cookie.getValue());
 
         Optional<Event> event = eventDao.findById(idEvent);
         if(!event.isPresent() || !event.get().getSerie().getId().equals(idSerie))
-            return ResponseEntity.badRequest().build();
+            return ErrorModel.createErrorModel(HttpStatus.BAD_REQUEST);
 
         if(!shareDao.getFromUserIdAndSerieId(idUser, idSerie).isPresent())
-            return ResponseEntity.status(HttpStatus.METHOD_NOT_ALLOWED).build();
+            return ErrorModel.createErrorModel(HttpStatus.UNAUTHORIZED);
 
         List<Tag> tagList = tagDao.getTagsByUserIdAndEventId(idEvent, idUser);
+
+        modelAndView = new ModelAndView("tags");
+        modelAndView.addObject("tags", tagList);
 
         cookie.setMaxAge(5000);
         cookie.setPath("/");
         response.addCookie(cookie);
-        return ResponseEntity.ok(tagList);
+        return modelAndView;
     }
 
     @PostMapping("{idSerie}/events/{idEvent}/tags")
