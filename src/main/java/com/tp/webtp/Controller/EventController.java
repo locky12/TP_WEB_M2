@@ -6,6 +6,10 @@ import com.tp.webtp.dao.ShareDao;
 import com.tp.webtp.dao.TagDao;
 import com.tp.webtp.entity.*;
 import com.tp.webtp.model.ErrorModel;
+import com.tp.webtp.service.EventService;
+import com.tp.webtp.service.SerieService;
+import com.tp.webtp.service.ShareService;
+import com.tp.webtp.service.TagService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.hateoas.Link;
 import org.springframework.hateoas.RepresentationModel;
@@ -35,9 +39,13 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 public class EventController {
 
     @Autowired
-    ShareDao shareDao;
+    ShareService shareService;
     @Autowired
-    SerieDao serieDao;
+    SerieService serieService;
+    @Autowired
+    EventService eventService;
+    @Autowired
+    TagService tagService;
     @Autowired
     EventDao eventDao;
     @Autowired
@@ -53,12 +61,12 @@ public class EventController {
             return ErrorModel.createErrorModel(HttpStatus.UNAUTHORIZED);
         UUID idUser = UUID.fromString(cookie.getValue());
 
-        Optional<Serie> serie = shareDao.getFromUserIdAndSerieId(idUser, idSerie);
+        Serie serie = shareService.getFromUserIdAndSerieId(idUser, idSerie);
 
-        if (!serie.isPresent())
+        if (serie == null)
             return ErrorModel.createErrorModel(HttpStatus.NOT_FOUND);
 
-        List<Event> eventList = eventDao.findBySerieId(idSerie);
+        List<Event> eventList = eventService.getBySerieId(idSerie);
         for (Event event : eventList){
             UUID idEvent = event.getId();
             Link thisLink = linkTo(methodOn(this.getClass()).getEvents(idSerie,request,response)).slash(event.getId()).withSelfRel();
@@ -69,7 +77,7 @@ public class EventController {
 
         modelAndView = new ModelAndView("events");
         modelAndView.addObject("events", eventList);
-        modelAndView.addObject("serie", serie.get());
+        modelAndView.addObject("serie", serie);
 
         cookie.setMaxAge(5000);
         cookie.setPath("/");
@@ -87,22 +95,22 @@ public class EventController {
 
         UUID idUser = UUID.fromString(cookie.getValue());
 
-        Optional<Serie> serie = serieDao.findById(idSerie);
+        Serie serie = serieService.getSerieBySerieId(idSerie);
 
-        if(eventR == null || !serie.isPresent())
+        if(eventR == null)
             return ResponseEntity.badRequest().build();
 
-        if(!shareDao.getFromUserIdAndSerieIdAndNotRole(idUser, idSerie, Role.READ).isPresent())
+        if(shareService.getFromUserIdAndSerieIdAndNotRole(idUser, idSerie, Role.READ) == null)
             return ResponseEntity.status(HttpStatus.METHOD_NOT_ALLOWED).build();
 
-        eventR.setSerie(serie.get());
+        eventR.setSerie(serie);
         eventR.setDateModif(Date.from(LocalDateTime.now().atZone(ZoneId.systemDefault()).toInstant()));
         Event event = eventDao.save(eventR);
 
         cookie.setMaxAge(5000);
         cookie.setPath("/");
         response.addCookie(cookie);
-        return ResponseEntity.created(URI.create("/series/" + serie.get().getId() + "/" + event.getId())).build();
+        return ResponseEntity.created(URI.create("/series/" + serie.getId() + "/" + event.getId())).build();
     }
 
     @GetMapping("{idSerie}/events/{idEvent}")
@@ -115,21 +123,18 @@ public class EventController {
 
         UUID idUser = UUID.fromString(cookie.getValue());
 
-        Optional<Event> eventOptional = eventDao.findById(idEvent);
-        if(!eventOptional.isPresent() || !eventOptional.get().getSerie().getId().equals(idSerie))
+        Event event = eventService.getEventByEventId(idEvent);
+        if(event == null || !event.getSerie().getId().equals(idSerie))
             return ErrorModel.createErrorModel(HttpStatus.BAD_REQUEST);
 
-        if(!shareDao.getFromUserIdAndSerieId(idUser, idSerie).isPresent())
+        if(shareService.getFromUserIdAndSerieId(idUser, idSerie) == null)
             return ErrorModel.createErrorModel(HttpStatus.METHOD_NOT_ALLOWED);
 
-        Event event = eventOptional.get();
-
-        List<Tag> tagList = tagDao.getTagsByUserIdAndEventId(idEvent, idUser);
+        List<Tag> tagList = tagService.getTagsByUserIdAndEventId(idEvent, idUser);
         Link thisLink = linkTo(methodOn(this.getClass()).getEvents(idSerie,request,response)).slash(event.getId()).withSelfRel();
         Link tagLink = linkTo(methodOn(this.getClass()).getEvents(idSerie,request,response)).slash(event.getId()).slash("tags").withRel("tag");
         event.add(thisLink);
         event.add(tagLink);
-
 
         modelAndView = new ModelAndView("event");
         modelAndView.addObject("event", event);
@@ -151,22 +156,22 @@ public class EventController {
         
         UUID idUser = UUID.fromString(cookie.getValue());
 
-        Optional<Event> event = eventDao.findById(idEvent);
-        if(!event.isPresent() || !event.get().getSerie().getId().equals(idSerie))
+        Event event = eventService.getEventByEventId(idEvent);
+        if(event == null || !event.getSerie().getId().equals(idSerie))
             return ResponseEntity.badRequest().build();
 
-        if(!shareDao.getFromUserIdAndSerieId(idUser, idSerie).isPresent())
+        if(shareService.getFromUserIdAndSerieId(idUser, idSerie) == null)
             return ResponseEntity.status(HttpStatus.METHOD_NOT_ALLOWED).build();
 
         eventR.setId(idEvent);
-        eventR.setSerie(event.get().getSerie());
+        eventR.setSerie(event.getSerie());
         eventR.setDateModif(Date.from(LocalDateTime.now().atZone(ZoneId.systemDefault()).toInstant()));
         eventDao.save(eventR);
 
         cookie.setMaxAge(5000);
         cookie.setPath("/");
         response.addCookie(cookie);
-        return ResponseEntity.ok(event.get());
+        return ResponseEntity.ok(event);
     }
 
     @GetMapping("{idSerie}/events/{idEvent}/tags")
@@ -178,15 +183,14 @@ public class EventController {
             return ErrorModel.createErrorModel(HttpStatus.UNAUTHORIZED);
         UUID idUser = UUID.fromString(cookie.getValue());
 
-        Optional<Event> eventO = eventDao.findById(idEvent);
-        if(!eventO.isPresent() || !eventO.get().getSerie().getId().equals(idSerie))
+        Event event = eventService.getEventByEventId(idEvent);
+        if(event == null || !event.getSerie().getId().equals(idSerie))
             return ErrorModel.createErrorModel(HttpStatus.BAD_REQUEST);
 
-        Event event = eventO.get();
-        if(!shareDao.getFromUserIdAndSerieId(idUser, idSerie).isPresent())
+        if(shareService.getFromUserIdAndSerieId(idUser, idSerie) == null)
             return ErrorModel.createErrorModel(HttpStatus.UNAUTHORIZED);
 
-        List<Tag> tagList = tagDao.getTagsByUserIdAndEventId(idEvent, idUser);
+        List<Tag> tagList = tagService.getTagsByUserIdAndEventId(idEvent, idUser);
 
         modelAndView = new ModelAndView("tags");
         modelAndView.addObject("tags", tagList);
@@ -214,25 +218,22 @@ public class EventController {
 
         UUID idUser = UUID.fromString(cookie.getValue());
 
-        Optional<Event> event = eventDao.findById(idEvent);
-        if(!event.isPresent() || !event.get().getSerie().getId().equals(idSerie))
+        Event event = eventService.getEventByEventId(idEvent);
+        if(event == null || !event.getSerie().getId().equals(idSerie))
             return ResponseEntity.badRequest().build();
 
-        if(!shareDao.getFromUserIdAndSerieIdAndNotRole(idUser, event.get().getSerie().getId(), Role.READ).isPresent())
+        if(shareService.getFromUserIdAndSerieIdAndNotRole(idUser, event.getSerie().getId(), Role.READ) == null)
             return ResponseEntity.status(HttpStatus.METHOD_NOT_ALLOWED).build();
 
-        tagR.setEvent(event.get());
+        tagR.setEvent(event);
         tagDao.save(tagR);
 
-        event.get().setDateModif(Date.from(LocalDateTime.now().atZone(ZoneId.systemDefault()).toInstant()));
-        eventDao.save(event.get());
-
-
-
+        event.setDateModif(Date.from(LocalDateTime.now().atZone(ZoneId.systemDefault()).toInstant()));
+        eventDao.save(event);
 
         cookie.setMaxAge(5000);
         cookie.setPath("/");
         response.addCookie(cookie);
-        return ResponseEntity.created(URI.create("/series/" + event.get().getSerie().getId() + "/" + event.get().getId() + "/tags")).build();
+        return ResponseEntity.created(URI.create("/series/" + event.getSerie().getId() + "/" + event.getId() + "/tags")).build();
     }
 }

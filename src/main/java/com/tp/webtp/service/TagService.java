@@ -5,7 +5,7 @@ import com.tp.webtp.entity.Event;
 import com.tp.webtp.entity.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.util.StringUtils;
+import org.springframework.util.Assert;
 
 import java.util.Date;
 import java.util.List;
@@ -24,29 +24,29 @@ public class TagService {
     }
 
     public List<Tag> getTagsByUserId(UUID idUser) {
-        List<Tag> tags = tagDao.getTagsByUserId(idUser);
-        return tags.isEmpty() ? null : tags;
+        return tagDao.getTagsByUserId(idUser);
     }
 
     public List<Event> getEventsByTagNameAndUserId(String tagName, UUID userId){
-        if(tagName == null || !StringUtils.hasText(tagName)) return null;
-        List<Event> events = tagDao.getEventsByTagNameAndUserId(tagName, userId);
-        return events.isEmpty() ? null : events;
+        Assert.hasText(tagName, "tagName ne peut pas etre empty/blank/null");
+        return tagDao.getEventsByTagNameAndUserId(tagName, userId);
     }
 
     public List<Tag> getTagsByUserIdAndEventId(UUID eventId, UUID userId){
-        List<Tag> tags = tagDao.getTagsByUserIdAndEventId(eventId, userId);
-        return tags.isEmpty() ? null : tags;
+        return tagDao.getTagsByUserIdAndEventId(eventId, userId);
     }
 
     public Date getEventsDateByTagNameAndUserId(String tagName, UUID userId){
-        if(tagName == null || !StringUtils.hasText(tagName)) return null;
+        Assert.hasText(tagName, "tagName ne peut pas etre empty/blank/null");
         Date date = tagDao.getEventsDateByTagNameAndUserId(tagName, userId);
         return date;
     }
 
     public Integer getTagFrequencyBetweenDates(String tagName, UUID userId, Date debut, Date fin){
-        if(tagName == null || !StringUtils.hasText(tagName) || debut == null || fin == null || debut.after(fin)) return null;
+        Assert.hasText(tagName, "tagName ne peut pas etre empty/blank/null");
+        Assert.notNull(debut, "la date de debut ne peut pas etre null");
+        Assert.notNull(fin, "la date de fin ne peut pas etre null");
+        Assert.isTrue(debut.before(fin), "la date de fin ne peut pas etre plus recente que la date de debut");
         Integer integer = tagDao.getTagFrequencyBetweenDates(tagName, userId, debut, fin);
         return integer;
     }
