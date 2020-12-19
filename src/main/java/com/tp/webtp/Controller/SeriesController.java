@@ -7,6 +7,8 @@ import com.tp.webtp.entity.Role;
 import com.tp.webtp.entity.Serie;
 import com.tp.webtp.entity.Share;
 import com.tp.webtp.entity.User;
+import com.tp.webtp.model.ErrorModel;
+import com.tp.webtp.model.Series;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
