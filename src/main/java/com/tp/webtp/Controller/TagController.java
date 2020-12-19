@@ -37,10 +37,6 @@ public class TagController {
     @Autowired
     ShareDao shareDao;
     @Autowired
-    SerieDao serieDao;
-    @Autowired
-    EventDao eventDao;
-    @Autowired
     TagDao tagDao;
     @Autowired
     TagService tagService;
@@ -54,7 +50,7 @@ public class TagController {
 
         UUID idUser = UUID.fromString(cookie.getValue());
 
-        Tags tags = new Tags(tagService.getTagByUserId(idUser));
+        Tags tags = new Tags(tagService.getTagsByUserId(idUser));
         if (tags == null)
             return ErrorModel.createErrorModel(HttpStatus.NOT_FOUND);
 
