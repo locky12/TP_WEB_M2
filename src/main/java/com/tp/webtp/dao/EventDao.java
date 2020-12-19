@@ -15,5 +15,4 @@ import java.util.UUID;
 @Repository
 public interface EventDao extends JpaRepository<Event, UUID> {
      List<Event> findBySerieId(UUID Id);
-
 }
