@@ -1,5 +1,6 @@
 package com.tp.webtp.entity;
 
+import org.springframework.hateoas.RepresentationModel;
 import org.springframework.util.Assert;
 
 import javax.persistence.*;
@@ -8,7 +9,7 @@ import java.util.UUID;
 
 @Entity
 @XmlRootElement
-public class Tag {
+public class Tag extends RepresentationModel<Tag> {
 
     @Id
     @GeneratedValue

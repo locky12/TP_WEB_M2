@@ -1,6 +1,7 @@
 package com.tp.webtp.entity;
 
 import net.minidev.json.annotate.JsonIgnore;
+import org.springframework.hateoas.RepresentationModel;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
@@ -8,7 +9,7 @@ import java.time.ZoneId;
 import java.util.*;
 
 @Entity
-public class Event {
+public class Event extends RepresentationModel<Event> {
 
 
     @Id

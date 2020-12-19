@@ -19,6 +19,7 @@ public class IndexController {
         String message = "Hello Spring Boot + JSP";
 
 //        model.addAttribute("message", message);
+
         return new ModelAndView("index");
     };
 }

@@ -24,24 +24,6 @@
       </table>
     </div>
 
-    <form:form method="POST"
-            action="">
-               <table>
-                  <tr>
-                      <td><form:label path="title">Title</form:label></td>
-                      <td><form:input path="title"/></td>
-                  </tr>
-
-                  <tr>
-                      <td><form:label path="description">
-                        Description</form:label></td>
-                      <td><form:input path="description"/></td>
-                  </tr>
-                  <tr>
-                      <td><input type="submit" value="Submit"/></td>
-                  </tr>
-              </table>
-          </form:form>
 
       </body>
   </body>

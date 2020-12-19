@@ -19,6 +19,7 @@ public class Series {
         this.series = list;
     }
 
+
     public Series(){};
     @XmlElement(name="serie")
     public List<Serie> getList() {

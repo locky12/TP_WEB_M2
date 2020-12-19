@@ -5,10 +5,12 @@ import com.tp.webtp.dao.SerieDao;
 import com.tp.webtp.dao.ShareDao;
 import com.tp.webtp.dao.TagDao;
 import com.tp.webtp.entity.Event;
+import com.tp.webtp.entity.Tag;
 import com.tp.webtp.model.Tags;
 import com.tp.webtp.model.ErrorModel;
 import com.tp.webtp.service.TagService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.hateoas.Link;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.StringUtils;
@@ -24,6 +26,9 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
+
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
 @RestController
 @RequestMapping("/tags")
@@ -53,8 +58,17 @@ public class TagController {
         if (tags == null)
             return ErrorModel.createErrorModel(HttpStatus.NOT_FOUND);
 
-        System.out.println("lalalalappppp" + tags);
+        for (Tag tag : tags.getList()) {
+            Link link = linkTo(methodOn(TagController.class).getTagEvents(request,response,tag.getTagName())).withSelfRel();
+            tag.add(link);
+//            Link link = linkTo(methodOn(TagController.class).getTagEvents(request,response,tag.getTagName())).withSelfRel();
+            Link linklastDate= linkTo(methodOn(TagController.class).getLastTagEvent(request,response,tag.getTagName())).withRel("lastDate tag");
+            tag.add(linklastDate);
+        }
+
+//        Link link = linkTo(methodOn(TagController.class).getTagEvents(request,response,tag.getTagName())).withRel("Alltags");
         modelAndView = new ModelAndView("tags").addObject("tags",tags);
+
         return modelAndView;
     }
 
@@ -75,6 +89,8 @@ public class TagController {
         modelAndView = new ModelAndView("tag");
         modelAndView.addObject("tagName", tagName);
         modelAndView.addObject("events", eventList);
+
+
 
         cookie.setMaxAge(5000);
         cookie.setPath("/");

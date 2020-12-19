@@ -20,7 +20,7 @@
                  <li><a href="${pageContext.request.contextPath}/series/${serie.id}"></a>Events</li>
 
             </ul>
-            <p><a href="${pageContext.request.contextPath}/series/${serie.id}/events">events</a> events</p>
+           <a href="${pageContext.request.contextPath}/series/${serie.id}/events">events</a>
 
     </body>
 

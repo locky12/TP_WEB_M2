@@ -1,5 +1,9 @@
 package com.tp.webtp.entity;
 
+import org.springframework.hateoas.Link;
+import org.springframework.hateoas.Links;
+import org.springframework.hateoas.RepresentationModel;
+
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
@@ -9,7 +13,7 @@ import java.util.UUID;
 
 @Entity
 @XmlRootElement
-public class Serie {
+public class Serie extends RepresentationModel<Serie> {
 
     @Id
     @GeneratedValue
@@ -17,6 +21,8 @@ public class Serie {
 
     private String title;
     private String description;
+
+
 
     public Serie(String title, String description) {
         this.title = title;
@@ -51,6 +57,7 @@ public class Serie {
         this.description = description;
     }
 
+
     @Override
     public String toString() {
         return "Serie{" +
@@ -59,4 +66,6 @@ public class Serie {
                 ", description='" + description + '\'' +
                 '}';
     }
+
+
 }

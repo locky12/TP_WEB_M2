@@ -10,10 +10,15 @@ import com.tp.webtp.entity.User;
 import com.tp.webtp.model.ErrorModel;
 import com.tp.webtp.model.Series;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.hateoas.CollectionModel;
+import org.springframework.hateoas.Link;
+import org.springframework.hateoas.server.core.ControllerEntityLinks;
+import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
@@ -24,6 +29,9 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.net.URI;
 import java.util.*;
+
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.*;
+
 
 @Controller
 @RequestMapping("/series")
@@ -47,16 +55,69 @@ public class SeriesController {
         UUID idUser = UUID.fromString(cookie.getValue());
 
         Series series = new Series(shareDao.getSeriesByUserId(idUser));
+        for (Serie serie : series.getList()){
+            UUID idSerie = serie.getId();
+            Link thisLink = linkTo(this.getClass()).slash(serie.getId()).withSelfRel();
+            Link serieLink = linkTo(methodOn(this.getClass()).getSeries(request,response)).slash(serie.getId()).slash("events").withRel("serie");
+            serie.add(serieLink);
+            serie.add(thisLink);
+        }
 
         cookie.setMaxAge(5000);
         cookie.setPath("/");
         response.addCookie(cookie);
         ModelAndView modelAndView = new ModelAndView("series");
         modelAndView.addObject("series",series);
-        modelAndView.addObject("command", new Serie());
+
 
         return modelAndView;
     }
+
+//    @GetMapping(value = "/{id}")
+////    @RequestMapping(value = "/{id}")
+//    public CollectionModel<Serie> getSerieH(HttpServletResponse response, HttpServletRequest request, @PathVariable("id") UUID idSerie) {
+//
+//        Cookie cookie = WebUtils.getCookie(request, "user");
+////
+////        if(cookie == null)
+////            return ErrorModel.createErrorModel(HttpStatus.UNAUTHORIZED);
+////
+////        if ( !StringUtils.hasText(idSerie.toString()) )
+////            return ErrorModel.createErrorModel(HttpStatus.BAD_REQUEST);
+//
+//        UUID idUser = UUID.fromString(cookie.getValue());
+//
+//        Optional<Serie> serie = shareDao.getFromUserIdAndSerieId(idUser, idSerie);
+//
+////        if(!serie.isPresent())
+////            return ErrorModel.createErrorModel(HttpStatus.NOT_FOUND);
+//
+//        ModelAndView modelAndView = new ModelAndView("serie");
+//        modelAndView.addObject("serie", serie.get());
+//        Serie seriez = serie.get();
+//        seriez.
+//        cookie.setMaxAge(5000);
+//        cookie.setPath("/");
+//        response.addCookie(cookie);
+//        Link link = linkTo(methodOn(SeriesController.class).getSerieH(response,request,idSerie));
+//        CollectionModel<Serie> result = new CollectionModel<Serie>;
+//        return  result ;
+////        return ResponseEntity.ok(modelAndView);
+//    }
+//    @GetMapping(value = "/{Id}/orders", produces = { "application/hal+json" })
+//    public CollectionModel<Order> getOrdersForCustomer(@PathVariable final String customerId) {
+//        List<Order> orders = orderService.getAllOrdersForCustomer(customerId);
+//        for (final Order order : orders) {
+//            Link selfLink = linkTo(methodOn(CustomerController.class)
+//                    .getOrderById(customerId, order.getOrderId())).withSelfRel();
+//            order.add(selfLink);
+//        }
+//
+//        Link link = linkTo(methodOn(CustomerController.class)
+//                .getOrdersForCustomer(customerId)).withSelfRel();
+//        CollectionModel<Order> result = new CollectionModel<>(orders, link);
+//        return result;
+//    }
 
     @GetMapping(value = "/owned", produces = {MediaType.APPLICATION_JSON_VALUE, MediaType.TEXT_HTML_VALUE, MediaType.TEXT_PLAIN_VALUE, MediaType.APPLICATION_XML_VALUE})
     public ResponseEntity<List<Serie>> getSeriesOwned(HttpServletRequest request, HttpServletResponse response) {
@@ -104,16 +165,48 @@ public class SeriesController {
 
         if(!serie.isPresent())
             return ErrorModel.createErrorModel(HttpStatus.NOT_FOUND);
-
+        Serie serie1 = serie.get();
+        serie1.add(linkTo(methodOn(SeriesController.class).getSerie(response,request,idSerie)).withSelfRel());
         ModelAndView modelAndView = new ModelAndView("serie");
         modelAndView.addObject("serie", serie.get());
 
         cookie.setMaxAge(5000);
         cookie.setPath("/");
         response.addCookie(cookie);
+
         return modelAndView;
 //        return ResponseEntity.ok(modelAndView);
     }
+
+//    @GetMapping(value = "/{id}")
+////    @RequestMapping(value = "/{id}")
+//    public HttpEntity<Serie> getSerie(HttpServletResponse response, HttpServletRequest request, @PathVariable("id") UUID idSerie) {
+//
+//        Cookie cookie = WebUtils.getCookie(request, "user");
+//
+////        if(cookie == null)
+////            return ErrorModel.createErrorModel(HttpStatus.UNAUTHORIZED);
+////
+////        if ( !StringUtils.hasText(idSerie.toString()) )
+////            return ErrorModel.createErrorModel(HttpStatus.BAD_REQUEST);
+//
+//        UUID idUser = UUID.fromString(cookie.getValue());
+//
+//        Optional<Serie> serie = shareDao.getFromUserIdAndSerieId(idUser, idSerie);
+//
+////        if(!serie.isPresent())
+////            return ErrorModel.createErrorModel(HttpStatus.NOT_FOUND);
+//        Serie serie1 = serie.get();
+//        serie1.add(linkTo(methodOn(SeriesController.class).getSerie(response,request,idSerie)).withSelfRel());
+//        cookie.setMaxAge(5000);
+//        cookie.setPath("/");
+//        response.addCookie(cookie);
+//        return new ResponseEntity<>(serie1,HttpStatus.OK);
+////        return ResponseEntity.ok(modelAndView);
+//    }
+
+
+
 
     @PostMapping()
     public ResponseEntity<Void> createSerie(HttpServletResponse response, HttpServletRequest request, @RequestBody Serie serieR) {
