@@ -25,13 +25,7 @@ import java.util.Iterator;
 public class ControllerTest {
 
 
-    @RequestMapping(value = { "/", "/index" }, method = RequestMethod.GET)
-    public ModelAndView index(Model model){
-        String message = "Hello Spring Boot + JSP";
 
-//        model.addAttribute("message", message);
-        return new ModelAndView("index");
-    };
    /* @GetMapping("/test")
     public String get () {
         Event tag = new Event();

@@ -5,16 +5,20 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.servlet.ModelAndView;
 
 @Controller
 
 public class IndexController {
 
 
-//    @GetMapping(value = "/i/index")
-//    public String getIndex(Model model){
-//        model.addAttribute("message","salut");
-//        return "index1";
-//    };
+    @RequestMapping(value = { "/", "/index" }, method = RequestMethod.GET)
+    public ModelAndView index(Model model){
+        String message = "Hello Spring Boot + JSP";
+
+//        model.addAttribute("message", message);
+        return new ModelAndView("index");
+    };
 }

@@ -17,8 +17,10 @@
             <ul>
                 <li>${serie.title}</li>
                 <li>${serie.description}</li>
+                 <li><a href="${pageContext.request.contextPath}/series/${serie.id}"></a>Events</li>
 
-            </tr>
+            </ul>
+            <p><a href="${pageContext.request.contextPath}/series/${serie.id}/events">events</a> events</p>
 
     </body>
 
