@@ -1,26 +1,33 @@
 package com.tp.webtp.entity;
 
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
+
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import java.io.Serializable;
+import java.util.Collection;
 import java.util.UUID;
 
 @Entity
-public class User {
+
+public class User implements Serializable,UserDetails {
 
     @Id
-    //@GeneratedValue
+    @GeneratedValue
     private UUID id;
 
-    private String email;
+    private String username;
+    private String password;
 
-    public User(UUID id, String email) {
+    public User(UUID id, String username) {
         this.id = id;
-        this.email = email;
+        this.username = username;
     }
 
-    public User(String email) {
-        this.email = email;
+    public User(String pseudo) {
+        this.username = username;
     }
 
     public User() {}
@@ -29,11 +36,44 @@ public class User {
         return id;
     }
 
-    public String getEmail() {
-        return email;
+
+
+
+
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        return null;
     }
 
-    public void setEmail(String email) {
-        this.email = email;
+    @Override
+    public String getPassword() {
+        return this.password;
     }
+
+    @Override
+    public String getUsername() {
+        return username;
+    }
+
+    @Override
+    public boolean isAccountNonExpired() {
+        return false;
+    }
+
+    @Override
+    public boolean isAccountNonLocked() {
+        return false;
+    }
+
+    @Override
+    public boolean isCredentialsNonExpired() {
+        return false;
+    }
+
+    @Override
+    public boolean isEnabled() {
+        return false;
+    }
+
+
 }
