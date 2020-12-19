@@ -18,6 +18,6 @@ public class SerieService {
 
     public Serie getSerieBySerieId(UUID idSerie){
         Optional<Serie> serie = serieDao.findById(idSerie);
-        return serie.isPresent() ? serie.get() : null;
+        return serie.orElse(null);
     }
 }

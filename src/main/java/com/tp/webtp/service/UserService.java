@@ -14,6 +14,6 @@ public class UserService {
 
     public User getUserById(UUID userId){
         Optional<User> user = userDAO.findById(userId);
-        return user.isPresent() ? user.get() : null;
+        return user.orElse(null);
     }
 }

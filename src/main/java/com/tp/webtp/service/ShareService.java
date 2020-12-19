@@ -5,7 +5,6 @@ import com.tp.webtp.entity.Role;
 import com.tp.webtp.entity.Serie;
 import com.tp.webtp.entity.Share;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.repository.query.Param;
 
 import java.util.List;
 import java.util.Optional;
@@ -18,7 +17,7 @@ public class ShareService {
 
     public Share getShareByShareId(UUID idShare){
         Optional<Share> share = shareDao.findById(idShare);
-        return share.isPresent() ? share.get() : null;
+        return share.orElse(null);
     }
 
     public List<Share> getSharesByUserId(UUID userId){
@@ -46,18 +45,18 @@ public class ShareService {
     public Serie getFromUserIdAndSerieId(UUID userId, UUID serieId){
         if(serieId == null) return null;
         Optional<Serie> serie = shareDao.getFromUserIdAndSerieId(userId, serieId);
-        return serie.isPresent() ? serie.get() : null;
+        return serie.orElse(null);
     }
 
     public Share getFromUserIdAndSerieIdAndNotRole(UUID userId, UUID serieId, Role role){
         if(serieId == null || role == null) return null;
         Optional<Share> share = shareDao.getFromUserIdAndSerieIdAndNotRole(userId, serieId, role);
-        return share.isPresent() ? share.get() : null;
+        return share.orElse(null);
     }
 
     public Share getFromUserIdAndSerieIdAndRole(UUID userId, UUID serieId, Role role){
         if(serieId == null || role == null) return null;
         Optional<Share> share = shareDao.getFromUserIdAndSerieIdAndRole(userId, serieId, role);
-        return share.isPresent() ? share.get() : null;
+        return share.orElse(null);
     }
 }

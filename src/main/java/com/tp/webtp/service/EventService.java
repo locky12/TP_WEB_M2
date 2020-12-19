@@ -14,6 +14,6 @@ public class EventService {
 
     public Event getEventByEventId(UUID idEvent){
         Optional<Event> event = eventDao.findById(idEvent);
-        return event.isPresent() ? event.get() : null;
+        return event.orElse(null);
     }
 }

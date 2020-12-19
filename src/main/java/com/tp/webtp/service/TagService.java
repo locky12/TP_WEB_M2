@@ -20,7 +20,7 @@ public class TagService {
 
     public Tag getTagByTagId(UUID idTag){
         Optional<Tag> tag = tagDao.findById(idTag);
-        return tag.isPresent() ? tag.get() : null;
+        return tag.orElse(null);
     }
 
     public List<Tag> getTagsByUserId(UUID idUser) {
