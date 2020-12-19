@@ -5,7 +5,7 @@
 <html>
   <head>
     <meta charset="UTF-8" />
-    <title>Tags List</title>
+    <title>My Series</title>
 
   </head>
   <body>

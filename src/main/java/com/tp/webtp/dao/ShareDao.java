@@ -34,4 +34,8 @@ public interface ShareDao extends JpaRepository<Share, UUID> {
 
     @Query("select s from Share as s where s.user.id=:userId and s.serie.id=:serieId and s.role<>:role")
     public Optional<Share> getFromUserIdAndSerieIdAndNotRole(@Param(value = "userId") UUID userId, @Param(value = "serieId") UUID serieId, @Param(value = "role") Role role);
+
+    @Query("select s from Share as s where s.user.id=:userId and s.serie.id=:serieId and s.role=:role")
+    public Optional<Share> getFromUserIdAndSerieIdAndRole(@Param(value = "userId") UUID userId, @Param(value = "serieId") UUID serieId, @Param(value = "role") Role role);
+
 }
