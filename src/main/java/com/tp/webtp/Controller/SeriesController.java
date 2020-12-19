@@ -7,6 +7,8 @@ import com.tp.webtp.entity.Role;
 import com.tp.webtp.entity.Serie;
 import com.tp.webtp.entity.Share;
 import com.tp.webtp.entity.User;
+import com.tp.webtp.model.ErrorModel;
+import com.tp.webtp.model.Series;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -34,22 +36,26 @@ public class SeriesController {
     @Autowired
     UserDAO userDao;
 
-    @GetMapping(value = "/", produces = {MediaType.APPLICATION_JSON_VALUE, MediaType.TEXT_HTML_VALUE, MediaType.TEXT_PLAIN_VALUE, MediaType.APPLICATION_XML_VALUE})
-    public ResponseEntity<List<Serie>> getSeries(HttpServletRequest request, HttpServletResponse response) {
+    @GetMapping(value = "", produces = {MediaType.APPLICATION_JSON_VALUE, MediaType.TEXT_HTML_VALUE, MediaType.TEXT_PLAIN_VALUE, MediaType.APPLICATION_XML_VALUE})
+    public ModelAndView getSeries(HttpServletRequest request, HttpServletResponse response) {
 
         Cookie cookie = WebUtils.getCookie(request, "user");
 
         if(cookie == null)
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+            return ErrorModel.createErrorModel(HttpStatus.UNAUTHORIZED);
 
         UUID idUser = UUID.fromString(cookie.getValue());
 
-        List<Serie> listSerie = shareDao.getSeriesByUserId(idUser);
+        Series series = new Series(shareDao.getSeriesByUserId(idUser));
 
         cookie.setMaxAge(5000);
         cookie.setPath("/");
         response.addCookie(cookie);
-        return ResponseEntity.ok(listSerie);
+        ModelAndView modelAndView = new ModelAndView("series");
+        modelAndView.addObject("series",series);
+        modelAndView.addObject("command", new Serie());
+
+        return modelAndView;
     }
 
     @GetMapping(value = "/owned", produces = {MediaType.APPLICATION_JSON_VALUE, MediaType.TEXT_HTML_VALUE, MediaType.TEXT_PLAIN_VALUE, MediaType.APPLICATION_XML_VALUE})
@@ -110,7 +116,10 @@ public class SeriesController {
 //        return ResponseEntity.ok(modelAndView);
     }
 
-    @PostMapping()
+    @PostMapping(
+            consumes = {MediaType.APPLICATION_FORM_URLENCODED_VALUE,MediaType.APPLICATION_JSON_VALUE}
+
+    )
     public ResponseEntity<Void> createSerie(HttpServletResponse response, HttpServletRequest request, @RequestBody Serie serieR) {
 
         Cookie cookie = WebUtils.getCookie(request, "user");

@@ -13,20 +13,13 @@
     </head>
 
     <body>
-        <h2>Person JSP View!!!</h2>
-        <table>
-            <tr>
-                <td>Person Id</td>
-                <td>First Name</td>
+        <h2>My Serie  </h2>
+            <ul>
+                <li>${serie.title}</li>
+                <li>${serie.description}</li>
 
             </tr>
-            <tr>
-                <td>${tag.id}</td>
-                <td>${tag.name}</td>
-                <td>${serie.title}</td>
 
-            </tr>
-        </table>
     </body>
 
     </html>

@@ -25,26 +25,28 @@ public class Serie {
 
     public Serie(){}
 
+    @XmlElement
     public UUID getId() {
         return id;
     }
-//    @XmlElement
+
     public void setId(UUID id) {
         this.id = id;
     }
 
+    @XmlElement
     public String getTitle() {
         return title;
     }
-//    @XmlElement
+
     public void setTitle(String title) {
         this.title = title;
     }
 
+    @XmlElement
     public String getDescription() {
         return description;
     }
-//    @XmlElement
     public void setDescription(String description) {
         this.description = description;
     }

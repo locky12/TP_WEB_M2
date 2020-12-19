@@ -5,9 +5,8 @@ import com.tp.webtp.dao.SerieDao;
 import com.tp.webtp.dao.ShareDao;
 import com.tp.webtp.dao.TagDao;
 import com.tp.webtp.entity.Event;
-import com.tp.webtp.entity.Tags;
+import com.tp.webtp.model.Tags;
 import com.tp.webtp.model.ErrorModel;
-import com.tp.webtp.model.JaxbList;
 import com.tp.webtp.service.TagService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -20,7 +19,6 @@ import org.springframework.web.util.WebUtils;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -59,7 +57,7 @@ public class TagController {
             return ErrorModel.createErrorModel(HttpStatus.NOT_FOUND);
 
         System.out.println("lalalalappppp" + tags);
-        modelAndView = new ModelAndView("tags").addObject("tags",tags.getList());
+        modelAndView = new ModelAndView("tags").addObject("tags",tags);
         return modelAndView;
     }
 

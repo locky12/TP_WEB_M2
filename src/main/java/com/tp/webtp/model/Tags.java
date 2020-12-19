@@ -1,4 +1,6 @@
-package com.tp.webtp.entity;
+package com.tp.webtp.model;
+
+import com.tp.webtp.entity.Tag;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
@@ -29,7 +31,7 @@ public class Tags {
     @Override
     public String toString() {
         return "Tags{" +
-                "list=" + tags +
+                 ""+ tags +","+
                 '}';
     }
 }

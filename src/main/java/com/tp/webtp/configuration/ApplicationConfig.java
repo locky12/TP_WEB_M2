@@ -2,11 +2,10 @@ package com.tp.webtp.configuration;
 
 import com.tp.webtp.entity.Serie;
 import com.tp.webtp.entity.Tag;
-import com.tp.webtp.entity.Tags;
+import com.tp.webtp.model.Tags;
 import com.tp.webtp.model.JaxbList;
 import com.tp.webtp.resolver.JsonViewResolver;
 import com.tp.webtp.resolver.XmlViewResolver;
-import org.omg.IOP.TAG_ALTERNATE_IIOP_ADDRESS;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;

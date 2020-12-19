@@ -17,7 +17,7 @@
           <th>First Name</th>
           <th>Last Name</th>
         </tr>
-        <c:forEach  items="${tags}" var ="tag">
+        <c:forEach  items="${tags.list}" var ="tag">
         <tr>
           <td>${tag.tagName}</td>
         </tr>
