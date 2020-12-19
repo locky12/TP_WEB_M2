@@ -40,8 +40,6 @@ public class TagController {
     @Autowired
     TagService tagService;
 
-
-
     @GetMapping
     public ModelAndView getTags(HttpServletRequest request, HttpServletResponse response) {
         ModelAndView modelAndView;
@@ -50,7 +48,6 @@ public class TagController {
             return ErrorModel.createErrorModel(HttpStatus.UNAUTHORIZED);
 
         UUID idUser = UUID.fromString(cookie.getValue());
-
 
         Tags tags = new Tags(tagService.getTagByUserId(idUser));
         if (tags == null)
@@ -62,24 +59,27 @@ public class TagController {
     }
 
     @GetMapping("/{tagName}")
-    public ResponseEntity<List<Event>> getTagEvents(HttpServletRequest request, HttpServletResponse response, @PathVariable("tagName") String tagName) {
+    public ModelAndView getTagEvents(HttpServletRequest request, HttpServletResponse response, @PathVariable("tagName") String tagName) {
+        ModelAndView modelAndView;
 
         Cookie cookie = WebUtils.getCookie(request, "user");
-
         if(cookie == null)
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
-
+            return ErrorModel.createErrorModel(HttpStatus.UNAUTHORIZED);
         UUID idUser = UUID.fromString(cookie.getValue());
 
         if (!StringUtils.hasText(tagName))
-            return ResponseEntity.badRequest().build();
+            return ErrorModel.createErrorModel(HttpStatus.BAD_REQUEST);
 
         List<Event> eventList = tagDao.getEventsByTagNameAndUserId(tagName, idUser);
+
+        modelAndView = new ModelAndView("tag");
+        modelAndView.addObject("tagName", tagName);
+        modelAndView.addObject("events", eventList);
 
         cookie.setMaxAge(5000);
         cookie.setPath("/");
         response.addCookie(cookie);
-        return ResponseEntity.ok(eventList);
+        return modelAndView;
     }
 
     @GetMapping("/{tagName}/lastdate")

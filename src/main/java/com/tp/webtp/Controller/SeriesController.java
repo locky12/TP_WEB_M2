@@ -7,8 +7,6 @@ import com.tp.webtp.entity.Role;
 import com.tp.webtp.entity.Serie;
 import com.tp.webtp.entity.Share;
 import com.tp.webtp.entity.User;
-import com.tp.webtp.model.ErrorModel;
-import com.tp.webtp.model.Series;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -92,34 +90,30 @@ public class SeriesController {
 
         Cookie cookie = WebUtils.getCookie(request, "user");
 
-//        if(cookie == null)
-//            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
-//
-//        if ( !StringUtils.hasText(idSerie.toString()) )
-//            return ResponseEntity.badRequest().build();
+        if(cookie == null)
+            return ErrorModel.createErrorModel(HttpStatus.UNAUTHORIZED);
+
+        if ( !StringUtils.hasText(idSerie.toString()) )
+            return ErrorModel.createErrorModel(HttpStatus.BAD_REQUEST);
 
         UUID idUser = UUID.fromString(cookie.getValue());
 
         Optional<Serie> serie = shareDao.getFromUserIdAndSerieId(idUser, idSerie);
 
-//        if(!serie.isPresent())
-//            return ResponseEntity.notFound().build();
+        if(!serie.isPresent())
+            return ErrorModel.createErrorModel(HttpStatus.NOT_FOUND);
+
+        ModelAndView modelAndView = new ModelAndView("serie");
+        modelAndView.addObject("serie", serie.get());
 
         cookie.setMaxAge(5000);
         cookie.setPath("/");
         response.addCookie(cookie);
-        System.out.println(serie);
-        Serie serie1 = serie.get();
-        ModelAndView modelAndView = new ModelAndView("serie").addObject("serie",serie.get());
-        System.out.println(modelAndView);
         return modelAndView;
 //        return ResponseEntity.ok(modelAndView);
     }
 
-    @PostMapping(
-            consumes = {MediaType.APPLICATION_FORM_URLENCODED_VALUE,MediaType.APPLICATION_JSON_VALUE}
-
-    )
+    @PostMapping()
     public ResponseEntity<Void> createSerie(HttpServletResponse response, HttpServletRequest request, @RequestBody Serie serieR) {
 
         Cookie cookie = WebUtils.getCookie(request, "user");
