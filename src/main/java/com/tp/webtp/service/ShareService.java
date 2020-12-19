@@ -5,6 +5,7 @@ import com.tp.webtp.entity.Role;
 import com.tp.webtp.entity.Serie;
 import com.tp.webtp.entity.Share;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.repository.query.Param;
 
 import java.util.List;
 import java.util.Optional;
@@ -51,6 +52,12 @@ public class ShareService {
     public Share getFromUserIdAndSerieIdAndNotRole(UUID userId, UUID serieId, Role role){
         if(serieId == null || role == null) return null;
         Optional<Share> share = shareDao.getFromUserIdAndSerieIdAndNotRole(userId, serieId, role);
+        return share.isPresent() ? share.get() : null;
+    }
+
+    public Share getFromUserIdAndSerieIdAndRole(UUID userId, UUID serieId, Role role){
+        if(serieId == null || role == null) return null;
+        Optional<Share> share = shareDao.getFromUserIdAndSerieIdAndRole(userId, serieId, role);
         return share.isPresent() ? share.get() : null;
     }
 }
