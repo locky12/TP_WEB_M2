@@ -2,7 +2,6 @@ package com.tp.webtp.Controller;
 
 import com.tp.webtp.dao.SerieDao;
 import com.tp.webtp.dao.ShareDao;
-import com.tp.webtp.dao.UserDAO;
 import com.tp.webtp.entity.Role;
 import com.tp.webtp.entity.Serie;
 import com.tp.webtp.entity.Share;
@@ -44,8 +43,6 @@ public class SeriesController {
     @Autowired
     ShareDao shareDao;
     @Autowired
-    UserDAO userDao;
-    @Autowired
     ShareService shareService;
     @Autowired
     UserService userService;
@@ -64,7 +61,6 @@ public class SeriesController {
 
         Series series = new Series(shareService.getSeriesByUserId(idUser));
         for (Serie serie : series.getList()){
-            UUID idSerie = serie.getId();
             Link thisLink = linkTo(this.getClass()).slash(serie.getId()).withSelfRel();
             Link serieLink = linkTo(methodOn(this.getClass()).getSeries(request,response)).slash(serie.getId()).slash("events").withRel("serie");
             serie.add(serieLink);
@@ -90,7 +86,6 @@ public class SeriesController {
 
         Series series = new Series(shareService.getSeriesByUserIdAndRole(UUID.fromString(cookie.getValue()), Role.OWNER));
         for (Serie serie : series.getList()){
-            UUID idSerie = serie.getId();
             Link thisLink = linkTo(this.getClass()).slash(serie.getId()).withSelfRel();
             Link serieLink = linkTo(methodOn(this.getClass()).getSeries(request,response)).slash(serie.getId()).slash("events").withRel("serie");
             serie.add(serieLink);
@@ -115,8 +110,8 @@ public class SeriesController {
             return ErrorModel.createErrorModel(HttpStatus.UNAUTHORIZED);
 
         Series series = new Series(shareService.getSeriesByUserIdAndNotRole(UUID.fromString(cookie.getValue()), Role.OWNER));
+
         for (Serie serie : series.getList()){
-            UUID idSerie = serie.getId();
             Link thisLink = linkTo(this.getClass()).slash(serie.getId()).withSelfRel();
             Link serieLink = linkTo(methodOn(this.getClass()).getSeries(request,response)).slash(serie.getId()).slash("events").withRel("serie");
             serie.add(serieLink);
@@ -181,7 +176,7 @@ public class SeriesController {
         cookie.setPath("/");
         response.addCookie(cookie);
 
-        return  ResponseEntity.created(URI.create("/series/" + serie.getId())).build();
+        return ResponseEntity.created(URI.create("/series/" + serie.getId())).build();
     }
 
     @PostMapping("/{idSerie}")
@@ -208,7 +203,7 @@ public class SeriesController {
         if(shareService.getFromUserIdAndSerieIdAndRole(idUserSharing, idSerie, Role.OWNER) == null)
             return ResponseEntity.status(HttpStatus.METHOD_NOT_ALLOWED).build();
 
-        Share share = shareDao.save(new Share(userToShare, serieToShare, Role.valueOf(role.toUpperCase())));
+        shareDao.save(new Share(userToShare, serieToShare, Role.valueOf(role.toUpperCase())));
 
         cookie.setMaxAge(5000);
         cookie.setPath("/");

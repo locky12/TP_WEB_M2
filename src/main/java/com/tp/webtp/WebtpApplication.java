@@ -5,10 +5,12 @@ import com.tp.webtp.entity.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.web.servlet.ServletComponentScan;
 import org.springframework.context.annotation.Bean;
 
 import java.util.UUID;
 
+@ServletComponentScan
 @SpringBootApplication
 public class WebtpApplication {
 
@@ -26,8 +28,8 @@ public class WebtpApplication {
 	@Bean
 	public void test(){
 
-		User user1 = userDao.save(new User(UUID.fromString("9c06c672-4079-11eb-b378-0242ac130002"),"email user1"));
-		User user2 = userDao.save(new User(UUID.fromString("ede87c00-407a-11eb-b378-0242ac130002"), "email user2"));
+		User user1 = userDao.save(new User(UUID.fromString("9c06c672-4079-11eb-b378-0242ac130002"),"user1"));
+		User user2 = userDao.save(new User(UUID.fromString("ede87c00-407a-11eb-b378-0242ac130002"), "user2"));
 
 		Serie serie1User1 = serieDao.save(new Serie("Titre série 1 user 1", "desc"));
 		Serie serie2User1 = serieDao.save(new Serie("Titre série 2 user 1", "desc"));

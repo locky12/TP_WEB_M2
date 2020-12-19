@@ -11,7 +11,6 @@ import java.util.Collection;
 import java.util.UUID;
 
 @Entity
-
 public class User implements Serializable,UserDetails {
 
     @Id
@@ -27,7 +26,7 @@ public class User implements Serializable,UserDetails {
     }
 
     public User(String pseudo) {
-        this.username = username;
+        this.username = pseudo;
     }
 
     public User() {}
@@ -35,10 +34,6 @@ public class User implements Serializable,UserDetails {
     public UUID getId() {
         return id;
     }
-
-
-
-
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
@@ -74,6 +69,4 @@ public class User implements Serializable,UserDetails {
     public boolean isEnabled() {
         return false;
     }
-
-
 }
