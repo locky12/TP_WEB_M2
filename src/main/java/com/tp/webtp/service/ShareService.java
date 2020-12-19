@@ -31,31 +31,31 @@ public class ShareService {
     }
 
     public List<Serie> getSeriesByUserIdAndRole(UUID userId, Role role){
-        if(role == null) return null;
+        if(role == null) throw new IllegalArgumentException();
         List<Serie> series = shareDao.getSeriesByUserIdAndRole(userId, role);
         return series.isEmpty() ? null : series;
     }
 
     public List<Serie> getSeriesByUserIdAndNotRole(UUID userId, Role role){
-        if(role == null) return null;
+        if(role == null) throw new IllegalArgumentException();
         List<Serie> series = shareDao.getSeriesByUserIdAndNotRole(userId, role);
         return series.isEmpty() ? null : series;
     }
 
     public Serie getFromUserIdAndSerieId(UUID userId, UUID serieId){
-        if(serieId == null) return null;
+        if(serieId == null) throw new IllegalArgumentException();
         Optional<Serie> serie = shareDao.getFromUserIdAndSerieId(userId, serieId);
         return serie.orElse(null);
     }
 
     public Share getFromUserIdAndSerieIdAndNotRole(UUID userId, UUID serieId, Role role){
-        if(serieId == null || role == null) return null;
+        if(serieId == null || role == null) throw new IllegalArgumentException();
         Optional<Share> share = shareDao.getFromUserIdAndSerieIdAndNotRole(userId, serieId, role);
         return share.orElse(null);
     }
 
     public Share getFromUserIdAndSerieIdAndRole(UUID userId, UUID serieId, Role role){
-        if(serieId == null || role == null) return null;
+        if(serieId == null || role == null) throw new IllegalArgumentException();
         Optional<Share> share = shareDao.getFromUserIdAndSerieIdAndRole(userId, serieId, role);
         return share.orElse(null);
     }
