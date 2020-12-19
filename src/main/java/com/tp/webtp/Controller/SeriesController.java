@@ -9,6 +9,7 @@ import com.tp.webtp.entity.Share;
 import com.tp.webtp.entity.User;
 import com.tp.webtp.model.ErrorModel;
 import com.tp.webtp.model.Series;
+import org.aspectj.asm.IModelFilter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.Link;
@@ -65,8 +66,10 @@ public class SeriesController {
 
         cookie.setMaxAge(5000);
         cookie.setPath("/");
+
         response.addCookie(cookie);
         ModelAndView modelAndView = new ModelAndView("series");
+
         modelAndView.addObject("series",series);
 
 
