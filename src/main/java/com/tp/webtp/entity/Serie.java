@@ -1,7 +1,5 @@
 package com.tp.webtp.entity;
 
-import org.springframework.hateoas.Link;
-import org.springframework.hateoas.Links;
 import org.springframework.hateoas.RepresentationModel;
 
 import javax.persistence.Entity;
@@ -9,6 +7,9 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.util.Date;
 import java.util.UUID;
 
 @Entity
@@ -21,12 +22,12 @@ public class Serie extends RepresentationModel<Serie> {
 
     private String title;
     private String description;
-
-
+    private Date dateModif;
 
     public Serie(String title, String description) {
         this.title = title;
         this.description = description;
+        this.dateModif = Date.from(LocalDateTime.now().atZone(ZoneId.systemDefault()).toInstant());
     }
 
     public Serie(){}
@@ -57,6 +58,13 @@ public class Serie extends RepresentationModel<Serie> {
         this.description = description;
     }
 
+    public Date getDateModif() {
+        return dateModif;
+    }
+
+    public void setDateModif(Date dateModif) {
+        this.dateModif = dateModif;
+    }
 
     @Override
     public String toString() {
@@ -66,6 +74,4 @@ public class Serie extends RepresentationModel<Serie> {
                 ", description='" + description + '\'' +
                 '}';
     }
-
-
 }

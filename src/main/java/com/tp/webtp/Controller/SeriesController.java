@@ -3,10 +3,7 @@ package com.tp.webtp.Controller;
 import com.tp.webtp.dao.SerieDao;
 import com.tp.webtp.dao.ShareDao;
 import com.tp.webtp.dao.UserDAO;
-import com.tp.webtp.entity.Role;
-import com.tp.webtp.entity.Serie;
-import com.tp.webtp.entity.Share;
-import com.tp.webtp.entity.User;
+import com.tp.webtp.entity.*;
 import com.tp.webtp.model.ErrorModel;
 import com.tp.webtp.model.Series;
 import com.tp.webtp.service.SerieService;
@@ -27,10 +24,11 @@ import org.springframework.web.servlet.ModelAndView;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.net.URI;
+import java.text.SimpleDateFormat;
 import java.time.Duration;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.util.*;
 
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
@@ -55,6 +53,8 @@ public class SeriesController {
 
     private static final String  CACHE_CONTROL_CHAMPS = "Cache-control";
     private static final String  CACHE_CONTROL_VALUE = CacheControl.maxAge(Duration.ofDays(1)).cachePrivate().noTransform().mustRevalidate().getHeaderValue();
+    private static final String  LAST_MODIFIED_CHAMPS = "Last-Modified";
+    private static final SimpleDateFormat LAST_MODIFIED_FORMATTER = new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss zzz", Locale.ENGLISH);
 
     @GetMapping(produces = {MediaType.APPLICATION_JSON_VALUE, MediaType.TEXT_HTML_VALUE, MediaType.TEXT_PLAIN_VALUE, MediaType.APPLICATION_XML_VALUE})
     public ModelAndView getSeries(@AuthenticationPrincipal User user, HttpServletRequest request, HttpServletResponse response) {
@@ -67,9 +67,13 @@ public class SeriesController {
             serie.add(thisLink);
         }
 
+        Date lastDate = series.getList().stream().map(Serie::getDateModif).max(Date::compareTo).get();
+
         ModelAndView modelAndView = new ModelAndView("series");
         modelAndView.addObject("series",series);
         response.setHeader(CACHE_CONTROL_CHAMPS, CACHE_CONTROL_VALUE);
+        LAST_MODIFIED_FORMATTER.setTimeZone(TimeZone.getTimeZone("GMT"));
+        response.setHeader(LAST_MODIFIED_CHAMPS, LAST_MODIFIED_FORMATTER.format(lastDate));
         return modelAndView;
     }
 
@@ -84,9 +88,13 @@ public class SeriesController {
             serie.add(thisLink);
         }
 
+        Date lastDate = series.getList().stream().map(Serie::getDateModif).max(Date::compareTo).get();
+
         ModelAndView modelAndView = new ModelAndView("series");
         modelAndView.addObject("series",series);
         response.setHeader(CACHE_CONTROL_CHAMPS, CACHE_CONTROL_VALUE);
+        LAST_MODIFIED_FORMATTER.setTimeZone(TimeZone.getTimeZone("GMT"));
+        response.setHeader(LAST_MODIFIED_CHAMPS, LAST_MODIFIED_FORMATTER.format(lastDate));
         return modelAndView;
     }
 
@@ -102,9 +110,13 @@ public class SeriesController {
             serie.add(thisLink);
         }
 
+        Date lastDate = series.getList().stream().map(Serie::getDateModif).max(Date::compareTo).get();
+
         ModelAndView modelAndView = new ModelAndView("series");
         modelAndView.addObject("series",series);
         response.setHeader(CACHE_CONTROL_CHAMPS, CACHE_CONTROL_VALUE);
+        LAST_MODIFIED_FORMATTER.setTimeZone(TimeZone.getTimeZone("GMT"));
+        response.setHeader(LAST_MODIFIED_CHAMPS, LAST_MODIFIED_FORMATTER.format(lastDate));
         return modelAndView;
     }
 
@@ -123,6 +135,8 @@ public class SeriesController {
         ModelAndView modelAndView = new ModelAndView("serie");
         modelAndView.addObject("serie", serie);
         response.setHeader(CACHE_CONTROL_CHAMPS, CACHE_CONTROL_VALUE);
+        LAST_MODIFIED_FORMATTER.setTimeZone(TimeZone.getTimeZone("GMT"));
+        response.setHeader(LAST_MODIFIED_CHAMPS, LAST_MODIFIED_FORMATTER.format(serie.getDateModif()));
         return modelAndView;
     }
 
@@ -132,10 +146,11 @@ public class SeriesController {
         if (serieR == null)
             return ResponseEntity.badRequest().build();
 
+        serieR.setDateModif(Date.from(LocalDateTime.now().atZone(ZoneId.of("GMT")).toInstant()));
         Serie serie = serieDao.save(serieR);
         shareDao.save(new Share(userService.getUserById(user.getId()), serie, Role.OWNER));
 
-        return  ResponseEntity.created(URI.create("/series/" + serie.getId())).build();
+        return ResponseEntity.created(URI.create("/series/" + serie.getId())).build();
     }
 
     @PostMapping("/{idSerie}")

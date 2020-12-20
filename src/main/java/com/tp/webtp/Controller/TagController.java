@@ -37,7 +37,6 @@ public class TagController {
     private static final String  CACHE_CONTROL_CHAMPS = "Cache-control";
     private static final String  CACHE_CONTROL_VALUE = CacheControl.maxAge(Duration.ofDays(1)).cachePrivate().noTransform().mustRevalidate().getHeaderValue();
 
-
     @GetMapping
     public ModelAndView getTags(@AuthenticationPrincipal User user, HttpServletRequest request, HttpServletResponse response) {
 

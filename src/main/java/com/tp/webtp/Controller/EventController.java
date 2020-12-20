@@ -20,12 +20,11 @@ import org.springframework.web.servlet.ModelAndView;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.net.URI;
+import java.text.SimpleDateFormat;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
-import java.util.Date;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
@@ -49,7 +48,8 @@ public class EventController {
 
     private static final String  CACHE_CONTROL_CHAMPS = "Cache-control";
     private static final String  CACHE_CONTROL_VALUE = CacheControl.maxAge(Duration.ofDays(1)).cachePrivate().noTransform().mustRevalidate().getHeaderValue();
-
+    private static final String  LAST_MODIFIED_CHAMPS = "Last-Modified";
+    private static SimpleDateFormat LAST_MODIFIED_FORMATTER = new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss zzz", Locale.ENGLISH);
 
     @GetMapping("{idSerie}/events")
     public ModelAndView getEvents(@AuthenticationPrincipal User user, @PathVariable("idSerie")  UUID idSerie, HttpServletRequest request, HttpServletResponse response) {
@@ -63,17 +63,20 @@ public class EventController {
 
         List<Event> eventList = eventService.getBySerieId(idSerie);
         for (Event event : eventList){
-            UUID idEvent = event.getId();
             Link thisLink = linkTo(methodOn(this.getClass()).getEvents(user,idSerie,request,response)).slash(event.getId()).withSelfRel();
             Link tagLink = linkTo(methodOn(this.getClass()).getEvents( user,idSerie,request,response)).slash(event.getId()).slash("tags").withRel("tag");
             event.add(thisLink);
             event.add(tagLink);
         }
 
+        Date lastDate = eventList.stream().map(Event::getDateModif).max(Date::compareTo).get();
+
         modelAndView = new ModelAndView("events");
         modelAndView.addObject("events", eventList);
         modelAndView.addObject("serie", serie);
         response.setHeader(CACHE_CONTROL_CHAMPS, CACHE_CONTROL_VALUE);
+        LAST_MODIFIED_FORMATTER.setTimeZone(TimeZone.getTimeZone("GMT"));
+        response.setHeader(LAST_MODIFIED_CHAMPS, LAST_MODIFIED_FORMATTER.format(lastDate));
         return modelAndView;
     }
 
@@ -89,7 +92,7 @@ public class EventController {
             return ResponseEntity.status(HttpStatus.METHOD_NOT_ALLOWED).build();
 
         eventR.setSerie(serie);
-        eventR.setDateModif(Date.from(LocalDateTime.now().atZone(ZoneId.systemDefault()).toInstant()));
+        eventR.setDateModif(Date.from(LocalDateTime.now().atZone(ZoneId.of("GMT")).toInstant()));
         Event event = eventDao.save(eventR);
 
         return ResponseEntity.created(URI.create("/series/" + serie.getId() + "/" + event.getId())).build();
@@ -117,6 +120,8 @@ public class EventController {
         modelAndView.addObject("event", event);
         modelAndView.addObject("tags", tagList);
         response.setHeader(CACHE_CONTROL_CHAMPS, CACHE_CONTROL_VALUE);
+        LAST_MODIFIED_FORMATTER.setTimeZone(TimeZone.getTimeZone("GMT"));
+        response.setHeader(LAST_MODIFIED_CHAMPS, LAST_MODIFIED_FORMATTER.format(event.getDateModif()));
         return modelAndView;
     }
 
@@ -132,7 +137,7 @@ public class EventController {
 
         eventR.setId(idEvent);
         eventR.setSerie(event.getSerie());
-        eventR.setDateModif(Date.from(LocalDateTime.now().atZone(ZoneId.systemDefault()).toInstant()));
+        eventR.setDateModif(Date.from(LocalDateTime.now().atZone(ZoneId.of("GMT")).toInstant()));
         eventDao.save(eventR);
 
         return ResponseEntity.ok(event);
@@ -161,13 +166,13 @@ public class EventController {
             event.add(link);
         }
         response.setHeader(CACHE_CONTROL_CHAMPS, CACHE_CONTROL_VALUE);
+        LAST_MODIFIED_FORMATTER.setTimeZone(TimeZone.getTimeZone("GMT"));
+        response.setHeader(LAST_MODIFIED_CHAMPS, LAST_MODIFIED_FORMATTER.format(event.getDateModif()));
         return modelAndView;
     }
 
     @PostMapping("{idSerie}/events/{idEvent}/tags")
     public ResponseEntity<Event> createEventTag(@AuthenticationPrincipal User user,HttpServletResponse response, HttpServletRequest request, @PathVariable("idSerie")  UUID idSerie, @PathVariable("idEvent")  UUID idEvent, @RequestBody Tag tagR) {
-
-
 
         Event event = eventService.getEventByEventId(idEvent);
         if(event == null || !event.getSerie().getId().equals(idSerie))
@@ -179,7 +184,7 @@ public class EventController {
         tagR.setEvent(event);
         tagDao.save(tagR);
 
-        event.setDateModif(Date.from(LocalDateTime.now().atZone(ZoneId.systemDefault()).toInstant()));
+        event.setDateModif(Date.from(LocalDateTime.now().atZone(ZoneId.of("GMT")).toInstant()));
         eventDao.save(event);
 
         return ResponseEntity.created(URI.create("/series/" + event.getSerie().getId() + "/" + event.getId() + "/tags")).build();
