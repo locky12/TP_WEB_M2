@@ -60,4 +60,16 @@ public class ShareService {
         Optional<Share> share = shareDao.getFromUserIdAndSerieIdAndRole(userId, serieId, role);
         return share.orElse(null);
     }
+
+    public Share saveShare(Share share){
+        return shareDao.save(share);
+    }
+
+    public void deleteShare(Share share){
+        shareDao.delete(share);
+    }
+
+    public List<Share> getAllShares(){
+        return shareDao.getAll();
+    }
 }

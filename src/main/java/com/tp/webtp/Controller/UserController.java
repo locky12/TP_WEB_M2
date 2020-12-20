@@ -1,7 +1,6 @@
 package com.tp.webtp.Controller;
 
 import com.tp.webtp.configuration.WebSecurityConfig;
-import com.tp.webtp.dao.UserDAO;
 import com.tp.webtp.entity.User;
 import com.tp.webtp.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,8 +18,6 @@ import java.util.UUID;
 @RequestMapping("/users")
 public class UserController {
 
-    @Autowired
-    UserDAO userDAO;
     @Autowired
     UserService userService;
 
@@ -66,7 +63,7 @@ public class UserController {
             return ResponseEntity.badRequest().build();
         }
         userR.setPassword(bCryptPasswordEncoder.encode(userR.getPassword()));
-        user = userDAO.save(userR);
+        user = userService.saveUser(userR);
 
         Cookie cookie = new Cookie("user", user.getId().toString());
         cookie.setMaxAge(5000); // 1 day

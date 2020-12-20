@@ -1,9 +1,9 @@
 package com.tp.webtp.Controller;
 
-import com.tp.webtp.dao.SerieDao;
-import com.tp.webtp.dao.ShareDao;
-import com.tp.webtp.dao.UserDAO;
-import com.tp.webtp.entity.*;
+import com.tp.webtp.entity.Role;
+import com.tp.webtp.entity.Serie;
+import com.tp.webtp.entity.Share;
+import com.tp.webtp.entity.User;
 import com.tp.webtp.model.ErrorModel;
 import com.tp.webtp.model.Series;
 import com.tp.webtp.service.SerieService;
@@ -38,12 +38,6 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 @RequestMapping("/series")
 public class SeriesController {
 
-    @Autowired
-    SerieDao serieDao;
-    @Autowired
-    ShareDao shareDao;
-    @Autowired
-    UserDAO userDao;
     @Autowired
     ShareService shareService;
     @Autowired
@@ -147,8 +141,8 @@ public class SeriesController {
             return ResponseEntity.badRequest().build();
 
         serieR.setDateModif(Date.from(LocalDateTime.now().atZone(ZoneId.of("GMT")).toInstant()));
-        Serie serie = serieDao.save(serieR);
-        shareDao.save(new Share(userService.getUserById(user.getId()), serie, Role.OWNER));
+        Serie serie = serieService.saveSerie(serieR);
+        shareService.saveShare(new Share(userService.getUserById(user.getId()), serie, Role.OWNER));
 
         return ResponseEntity.created(URI.create("/series/" + serie.getId())).build();
     }
@@ -170,7 +164,7 @@ public class SeriesController {
         if(shareService.getFromUserIdAndSerieIdAndRole(user.getId(), idSerie, Role.OWNER) == null)
             return ResponseEntity.status(HttpStatus.METHOD_NOT_ALLOWED).build();
 
-        shareDao.save(new Share(userToShare, serieToShare, Role.valueOf(role.toUpperCase())));
+        shareService.saveShare(new Share(userToShare, serieToShare, Role.valueOf(role.toUpperCase())));
 
         return ResponseEntity.ok().build();
     }
@@ -182,6 +176,6 @@ public class SeriesController {
         serie.setDescription("desc");
         serie.setTitle("titre");
 
-        return shareDao.getAll();
+        return shareService.getAllShares();
     }
 }

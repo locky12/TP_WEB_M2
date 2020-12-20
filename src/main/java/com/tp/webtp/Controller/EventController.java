@@ -1,7 +1,5 @@
 package com.tp.webtp.Controller;
 
-import com.tp.webtp.dao.EventDao;
-import com.tp.webtp.dao.TagDao;
 import com.tp.webtp.entity.*;
 import com.tp.webtp.model.ErrorModel;
 import com.tp.webtp.service.EventService;
@@ -41,10 +39,6 @@ public class EventController {
     EventService eventService;
     @Autowired
     TagService tagService;
-    @Autowired
-    EventDao eventDao;
-    @Autowired
-    TagDao tagDao;
 
     private static final String  CACHE_CONTROL_CHAMPS = "Cache-control";
     private static final String  CACHE_CONTROL_VALUE = CacheControl.maxAge(Duration.ofDays(1)).cachePrivate().noTransform().mustRevalidate().getHeaderValue();
@@ -93,7 +87,7 @@ public class EventController {
 
         eventR.setSerie(serie);
         eventR.setDateModif(Date.from(LocalDateTime.now().atZone(ZoneId.of("GMT")).toInstant()));
-        Event event = eventDao.save(eventR);
+        Event event = eventService.saveEvent(eventR);
 
         return ResponseEntity.created(URI.create("/series/" + serie.getId() + "/" + event.getId())).build();
     }
@@ -138,7 +132,7 @@ public class EventController {
         eventR.setId(idEvent);
         eventR.setSerie(event.getSerie());
         eventR.setDateModif(Date.from(LocalDateTime.now().atZone(ZoneId.of("GMT")).toInstant()));
-        eventDao.save(eventR);
+        eventService.saveEvent(eventR);
 
         return ResponseEntity.ok(event);
     }
@@ -182,10 +176,10 @@ public class EventController {
             return ResponseEntity.status(HttpStatus.METHOD_NOT_ALLOWED).build();
 
         tagR.setEvent(event);
-        tagDao.save(tagR);
+        tagService.saveTag(tagR);
 
         event.setDateModif(Date.from(LocalDateTime.now().atZone(ZoneId.of("GMT")).toInstant()));
-        eventDao.save(event);
+        eventService.saveEvent(event);
 
         return ResponseEntity.created(URI.create("/series/" + event.getSerie().getId() + "/" + event.getId() + "/tags")).build();
     }

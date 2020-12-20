@@ -51,4 +51,12 @@ public class TagService {
         return integer;
     }
 
+    public Tag saveTag(Tag tag){
+        return tagDao.save(tag);
+    }
+
+    public void deleteTag(Tag tag){
+        tagDao.delete(tag);
+    }
+
 }

@@ -16,10 +16,10 @@ import java.util.UUID;
 public class UserService implements UserDetailsService {
 
     @Autowired
-    UserDAO userDAO;
+    UserDAO userDao;
 
     public User getUserById(UUID userId){
-        Optional<User> user = userDAO.findById(userId);
+        Optional<User> user = userDao.findById(userId);
         return user.orElse(null);
     }
 
@@ -27,8 +27,16 @@ public class UserService implements UserDetailsService {
     public UserDetails loadUserByUsername(String s) throws UsernameNotFoundException {
         Objects.requireNonNull(s);
         System.out.println();
-        UserDetails user = userDAO.findByUsername(s).orElseThrow(() -> new UsernameNotFoundException("Utilisateur non trouvé"));
+        UserDetails user = userDao.findByUsername(s).orElseThrow(() -> new UsernameNotFoundException("Utilisateur non trouvé"));
 
         return user;
+    }
+
+    public User saveUser(User user){
+        return userDao.save(user);
+    }
+
+    public void deleteUser(User user){
+        userDao.delete(user);
     }
 }

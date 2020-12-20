@@ -18,4 +18,12 @@ public class SerieService {
         Optional<Serie> serie = serieDao.findById(idSerie);
         return serie.orElse(null);
     }
+
+    public Serie saveSerie(Serie serie){
+        return serieDao.save(serie);
+    }
+
+    public void deleteSerie(Serie serie){
+        serieDao.delete(serie);
+    }
 }
