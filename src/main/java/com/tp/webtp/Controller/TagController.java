@@ -23,6 +23,8 @@ import java.text.SimpleDateFormat;
 import java.time.Duration;
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
+import java.util.TimeZone;
 
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
@@ -36,6 +38,8 @@ public class TagController {
 
     private static final String  CACHE_CONTROL_CHAMPS = "Cache-control";
     private static final String  CACHE_CONTROL_VALUE = CacheControl.maxAge(Duration.ofDays(1)).cachePrivate().noTransform().mustRevalidate().getHeaderValue();
+    private static final String  LAST_MODIFIED_CHAMPS = "Last-Modified";
+    private static final SimpleDateFormat LAST_MODIFIED_FORMATTER = new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss zzz", Locale.ENGLISH);
 
     @GetMapping
     public ModelAndView getTags(@AuthenticationPrincipal User user, HttpServletRequest request, HttpServletResponse response) {
@@ -67,10 +71,14 @@ public class TagController {
 
         List<Event> eventList = tagService.getEventsByTagNameAndUserId(tagName, user.getId());
 
+        Date lastDate = eventList.stream().map(Event::getDateModif).max(Date::compareTo).get();
+
         modelAndView = new ModelAndView("tag");
         modelAndView.addObject("tagName", tagName);
         modelAndView.addObject("events", eventList);
         response.setHeader(CACHE_CONTROL_CHAMPS, CACHE_CONTROL_VALUE);
+        LAST_MODIFIED_FORMATTER.setTimeZone(TimeZone.getTimeZone("GMT"));
+        response.setHeader(LAST_MODIFIED_CHAMPS, LAST_MODIFIED_FORMATTER.format(lastDate));
         return modelAndView;
     }
 
@@ -95,6 +103,13 @@ public class TagController {
             Date dateFin = formatter.parse(fin);
 
             Integer frequency = tagService.getTagFrequencyBetweenDates(tagName, user.getId(), dateDebut, dateFin);
+
+            List<Event> eventList = tagService.getEventsByTagNameAndUserId(tagName, user.getId());
+            Date lastDate = eventList.stream().map(Event::getDateModif).max(Date::compareTo).get();
+
+            response.setHeader(CACHE_CONTROL_CHAMPS, CACHE_CONTROL_VALUE);
+            LAST_MODIFIED_FORMATTER.setTimeZone(TimeZone.getTimeZone("GMT"));
+            response.setHeader(LAST_MODIFIED_CHAMPS, LAST_MODIFIED_FORMATTER.format(lastDate));
 
             return ResponseEntity.ok("Entre " + dateDebut.toString() + " et " + dateFin.toString() + ", " + tagName + " a été utilisé " + frequency + " fois !");
         }
