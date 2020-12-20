@@ -19,30 +19,37 @@ public class TagService {
     TagDao tagDao;
 
     public Tag getTagByTagId(UUID idTag){
+        Assert.notNull(idTag, "idTag cannot be null");
         Optional<Tag> tag = tagDao.findById(idTag);
         return tag.orElse(null);
     }
 
-    public List<Tag> getTagsByUserId(UUID idUser) {
-        return tagDao.getTagsByUserId(idUser);
+    public List<Tag> getTagsByUserId(UUID userId) {
+        Assert.notNull(userId, "idUser cannot be null");
+        return tagDao.getTagsByUserId(userId);
     }
 
     public List<Event> getEventsByTagNameAndUserId(String tagName, UUID userId){
+        Assert.notNull(userId, "idUser cannot be null");
         Assert.hasText(tagName, "tagName ne peut pas etre empty/blank/null");
         return tagDao.getEventsByTagNameAndUserId(tagName, userId);
     }
 
     public List<Tag> getTagsByUserIdAndEventId(UUID eventId, UUID userId){
+        Assert.notNull(userId, "idUser cannot be null");
+        Assert.notNull(eventId, "eventId cannot be null");
         return tagDao.getTagsByUserIdAndEventId(eventId, userId);
     }
 
     public Date getEventsDateByTagNameAndUserId(String tagName, UUID userId){
+        Assert.notNull(userId, "idUser cannot be null");
         Assert.hasText(tagName, "tagName ne peut pas etre empty/blank/null");
         Date date = tagDao.getEventsDateByTagNameAndUserId(tagName, userId);
         return date;
     }
 
     public Integer getTagFrequencyBetweenDates(String tagName, UUID userId, Date debut, Date fin){
+        Assert.notNull(userId, "idUser cannot be null");
         Assert.hasText(tagName, "tagName ne peut pas etre empty/blank/null");
         Assert.notNull(debut, "la date de debut ne peut pas etre null");
         Assert.notNull(fin, "la date de fin ne peut pas etre null");
@@ -52,10 +59,12 @@ public class TagService {
     }
 
     public Tag saveTag(Tag tag){
+        Assert.notNull(tag, "tag cannot be null");
         return tagDao.save(tag);
     }
 
     public void deleteTag(Tag tag){
+        Assert.notNull(tag, "tag cannot be null");
         tagDao.delete(tag);
     }
 

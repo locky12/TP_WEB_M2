@@ -7,6 +7,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
+import org.springframework.util.Assert;
 
 import java.util.Objects;
 import java.util.Optional;
@@ -19,24 +20,25 @@ public class UserService implements UserDetailsService {
     UserDAO userDao;
 
     public User getUserById(UUID userId){
+        Assert.notNull(userId, "idUser cannot be null");
         Optional<User> user = userDao.findById(userId);
         return user.orElse(null);
     }
 
     @Override
-    public UserDetails loadUserByUsername(String s) throws UsernameNotFoundException {
-        Objects.requireNonNull(s);
-        System.out.println();
-        UserDetails user = userDao.findByUsername(s).orElseThrow(() -> new UsernameNotFoundException("Utilisateur non trouvé"));
-
+    public UserDetails loadUserByUsername(String userName) throws UsernameNotFoundException {
+        Assert.hasText(userName, "userName cannot be null");
+        UserDetails user = userDao.findByUsername(userName).orElseThrow(() -> new UsernameNotFoundException("Utilisateur non trouvé"));
         return user;
     }
 
     public User saveUser(User user){
+        Assert.notNull(user, "user cannot be null");
         return userDao.save(user);
     }
 
     public void deleteUser(User user){
+        Assert.notNull(user, "user cannot be null");
         userDao.delete(user);
     }
 }
