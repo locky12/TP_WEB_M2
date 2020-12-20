@@ -11,7 +11,7 @@ public class AddResponseHeaderWebFilter implements Filter {
     @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
         HttpServletResponse httpServletResponse = (HttpServletResponse) response;
-        httpServletResponse.setHeader("headerName", "headerValue");
+        //httpServletResponse.setHeader("headerName", "headerValue");
         chain.doFilter(request, response);
     }
 }

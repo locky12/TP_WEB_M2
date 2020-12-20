@@ -38,30 +38,30 @@ public class WebtpApplication {
 		Serie serie1User2 = serieDao.save(new Serie("Titre série 1 user 2", "desc"));
 		Serie serie2User2 = serieDao.save(new Serie("Titre série 2 user 2", "desc"));
 
-		Share share = shareDao.save(new Share(user1, serie1User1, Role.OWNER));
-		Share share2 = shareDao.save(new Share(user1, serie2User1, Role.OWNER));
+		shareDao.save(new Share(user1, serie1User1, Role.OWNER));
+		shareDao.save(new Share(user1, serie2User1, Role.OWNER));
 
-		Share share5 = shareDao.save(new Share(user2, serie1User2, Role.OWNER));
-		Share share6 = shareDao.save(new Share(user2, serie2User2, Role.OWNER));
+		shareDao.save(new Share(user2, serie1User2, Role.OWNER));
+		shareDao.save(new Share(user2, serie2User2, Role.OWNER));
 
-		Share share7 = shareDao.save(new Share(user2, serie1User1, Role.WRITE));
-		Share share8 = shareDao.save(new Share(user1, serie1User2, Role.READ));
+		shareDao.save(new Share(user2, serie1User1, Role.WRITE));
+		shareDao.save(new Share(user1, serie1User2, Role.READ));
 
 		Event eventSerie1User1 = eventDao.save(new Event(serie1User1, "valeur 54", "commentaire"));
 
 		Event event1Serie1User2 = eventDao.save(new Event(serie1User2, "valeur 67", "commentaire"));
-		Event event2Serie1User2 = eventDao.save(new Event(serie1User2, "valeur 12", "commentaire"));
+		eventDao.save(new Event(serie1User2, "valeur 12", "commentaire"));
 
 		Event event4 = eventDao.save(new Event(serie1User1, "valeur 4", "commentaire"));
 		Event event5 = eventDao.save(new Event(serie1User2, "valeur 86", "commentaire"));
 
-		Tag tag = tagDao.save(new Tag("tag", eventSerie1User1));
-		Tag tag5 = tagDao.save(new Tag("tag", event5));
+		tagDao.save(new Tag("tag", eventSerie1User1));
+		tagDao.save(new Tag("tag", event5));
 
-		Tag tag2 = tagDao.save(new Tag("tag1", event1Serie1User2));
+		tagDao.save(new Tag("tag1", event1Serie1User2));
 
-		Tag tag3 = tagDao.save(new Tag("tag2", event1Serie1User2));
-		Tag tag4 = tagDao.save(new Tag("tag2", event4));
+		tagDao.save(new Tag("tag2", event1Serie1User2));
+		tagDao.save(new Tag("tag2", event4));
 	}
 
 	public static void main(String[] args) {

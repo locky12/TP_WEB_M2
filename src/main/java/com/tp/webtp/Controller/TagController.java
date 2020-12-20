@@ -37,11 +37,11 @@ public class TagController {
 
     @GetMapping
     public ModelAndView getTags(@AuthenticationPrincipal User user, HttpServletRequest request, HttpServletResponse response) {
+
         ModelAndView modelAndView;
 
-
         Tags tags = new Tags(tagService.getTagsByUserId(user.getId()));
-        if (tags == null)
+        if (tags.getList().isEmpty())
             return ErrorModel.createErrorModel(HttpStatus.NOT_FOUND);
 
         for (Tag tag : tags.getList()) {
@@ -60,7 +60,6 @@ public class TagController {
     public ModelAndView getTagEvents(@AuthenticationPrincipal User user, HttpServletRequest request, HttpServletResponse response, @PathVariable("tagName") String tagName) {
         ModelAndView modelAndView;
 
-
         if (!StringUtils.hasText(tagName))
             return ErrorModel.createErrorModel(HttpStatus.BAD_REQUEST);
 
@@ -70,13 +69,11 @@ public class TagController {
         modelAndView.addObject("tagName", tagName);
         modelAndView.addObject("events", eventList);
 
-
         return modelAndView;
     }
 
     @GetMapping("/{tagName}/lastdate")
     public ResponseEntity<String> getLastTagEvent(@AuthenticationPrincipal User user, HttpServletRequest request, HttpServletResponse response, @PathVariable("tagName") String tagName) {
-
 
         if (!StringUtils.hasText(tagName))
             return ResponseEntity.badRequest().build();
@@ -89,8 +86,6 @@ public class TagController {
     @GetMapping("/{tagName}/frequency")
     public ResponseEntity<String> getTagFrequency(@AuthenticationPrincipal User user, HttpServletRequest request, HttpServletResponse response, @PathVariable("tagName") String tagName, @RequestParam String debut, @RequestParam String fin) {
 
-
-
         SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy");
 
         try {
@@ -98,7 +93,6 @@ public class TagController {
             Date dateFin = formatter.parse(fin);
 
             Integer frequency = tagService.getTagFrequencyBetweenDates(tagName, user.getId(), dateDebut, dateFin);
-
 
             return ResponseEntity.ok("Entre " + dateDebut.toString() + " et " + dateFin.toString() + ", " + tagName + " a été utilisé " + frequency + " fois !");
         }

@@ -52,8 +52,6 @@ public class EventController {
 
         ModelAndView modelAndView;
 
-       
-
         Serie serie = shareService.getFromUserIdAndSerieId(user.getId(), idSerie);
 
         if (serie == null)
@@ -97,7 +95,6 @@ public class EventController {
     public ModelAndView getEvent(@AuthenticationPrincipal User user, @PathVariable("idSerie")  UUID idSerie, @PathVariable("idEvent")  UUID idEvent, HttpServletRequest request, HttpServletResponse response) {
 
         ModelAndView modelAndView;
-        
 
         Event event = eventService.getEventByEventId(idEvent);
         if(event == null || !event.getSerie().getId().equals(idSerie))
@@ -116,14 +113,11 @@ public class EventController {
         modelAndView.addObject("event", event);
         modelAndView.addObject("tags", tagList);
 
-
         return modelAndView;
     }
 
     @PutMapping("{idSerie}/events/{idEvent}")
     public ResponseEntity<Event> updateEvent(@AuthenticationPrincipal User user,@PathVariable("idSerie")  UUID idSerie, @PathVariable("idEvent")  UUID idEvent, @RequestBody Event eventR, HttpServletRequest request, HttpServletResponse response) {
-
-
 
         Event event = eventService.getEventByEventId(idEvent);
         if(event == null || !event.getSerie().getId().equals(idSerie))
@@ -137,14 +131,12 @@ public class EventController {
         eventR.setDateModif(Date.from(LocalDateTime.now().atZone(ZoneId.systemDefault()).toInstant()));
         eventDao.save(eventR);
 
-
         return ResponseEntity.ok(event);
     }
 
     @GetMapping("{idSerie}/events/{idEvent}/tags")
     public ModelAndView getEventTags(@AuthenticationPrincipal User user, @PathVariable("idSerie")  UUID idSerie, @PathVariable("idEvent")  UUID idEvent, HttpServletRequest request, HttpServletResponse response) {
         ModelAndView modelAndView;
-
 
         Event event = eventService.getEventByEventId(idEvent);
         if(event == null || !event.getSerie().getId().equals(idSerie))

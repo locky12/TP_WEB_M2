@@ -56,8 +56,6 @@ public class SeriesController {
     @GetMapping(produces = {MediaType.APPLICATION_JSON_VALUE, MediaType.TEXT_HTML_VALUE, MediaType.TEXT_PLAIN_VALUE, MediaType.APPLICATION_XML_VALUE})
     public ModelAndView getSeries(@AuthenticationPrincipal User user, HttpServletRequest request, HttpServletResponse response) {
 
-
-
         Series series = new Series(shareService.getSeriesByUserId(user.getId()));
         for (Serie serie : series.getList()){
             UUID idSerie = serie.getId();
@@ -75,7 +73,6 @@ public class SeriesController {
 
     @GetMapping(value = "/owned", produces = {MediaType.APPLICATION_JSON_VALUE, MediaType.TEXT_HTML_VALUE, MediaType.TEXT_PLAIN_VALUE, MediaType.APPLICATION_XML_VALUE})
     public ModelAndView getSeriesOwned(@AuthenticationPrincipal User user, HttpServletRequest request, HttpServletResponse response) {
-
 
         Series series = new Series(shareService.getSeriesByUserIdAndRole(user.getId(), Role.OWNER));
         for (Serie serie : series.getList()){
@@ -95,9 +92,7 @@ public class SeriesController {
     @GetMapping(value = "/shared", produces = {MediaType.APPLICATION_JSON_VALUE, MediaType.TEXT_HTML_VALUE, MediaType.TEXT_PLAIN_VALUE, MediaType.APPLICATION_XML_VALUE})
     public ModelAndView getSeriesShared(@AuthenticationPrincipal User user,HttpServletRequest request, HttpServletResponse response) {
 
-
-
-        Series series = new Series(shareService.getSeriesByUserIdAndNotRole(UUID.fromString(cookie.getValue()), Role.OWNER));
+        Series series = new Series(shareService.getSeriesByUserIdAndNotRole(user.getId(), Role.OWNER));
 
         for (Serie serie : series.getList()){
             UUID idSerie = serie.getId();
@@ -146,8 +141,6 @@ public class SeriesController {
 
     @PostMapping("/{idSerie}")
     public ResponseEntity<Void> shareSerie(@AuthenticationPrincipal User user,HttpServletResponse response, HttpServletRequest request, @RequestBody Map<String, String> idAndRole, @PathVariable("idSerie") UUID idSerie) {
-
-
 
         String idUserToShare = idAndRole.get("idUser");
         String role = idAndRole.get("role");
