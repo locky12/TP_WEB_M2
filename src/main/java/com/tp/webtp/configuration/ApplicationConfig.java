@@ -23,16 +23,17 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Configuration
-@ComponentScan(basePackages = "com.com.tp.webtp")
+@ComponentScan(basePackages = "com.tp.webtp")
 @PropertySource(value = { "classpath:application.properties" })
 @EnableWebMvc
 public class ApplicationConfig implements WebMvcConfigurer {
+
     @Bean
     public ViewResolver contentNegotiatingViewResolver(ContentNegotiationManager manager) {
         ContentNegotiatingViewResolver resolver = new ContentNegotiatingViewResolver();
         resolver.setContentNegotiationManager(manager);
 
-        List<ViewResolver> resolvers = new ArrayList< ViewResolver >();
+        List<ViewResolver> resolvers = new ArrayList<>();
 
 
 //        resolvers.add(xmlStringViewResolver());

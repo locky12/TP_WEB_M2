@@ -97,7 +97,8 @@ public class SeriesController {
 
 
 
-        Series series = new Series(shareService.getSeriesByUserIdAndNotRole(user.getId(), Role.OWNER));
+        Series series = new Series(shareService.getSeriesByUserIdAndNotRole(UUID.fromString(cookie.getValue()), Role.OWNER));
+
         for (Serie serie : series.getList()){
             UUID idSerie = serie.getId();
             Link thisLink = linkTo(this.getClass()).slash(serie.getId()).withSelfRel();

@@ -2,18 +2,17 @@ package com.tp.webtp.Controller;
 
 import com.tp.webtp.configuration.WebSecurityConfig;
 import com.tp.webtp.dao.UserDAO;
-import com.tp.webtp.entity.Serie;
 import com.tp.webtp.entity.User;
+import com.tp.webtp.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
+
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletResponse;
 import java.net.URI;
-import java.util.Optional;
 import java.util.UUID;
 
 @RestController
@@ -22,6 +21,8 @@ public class UserController {
 
     @Autowired
     UserDAO userDAO;
+    @Autowired
+    UserService userService;
 
     @Autowired
     WebSecurityConfig webSecurityConfig;
@@ -34,19 +35,18 @@ public class UserController {
         if ( !StringUtils.hasText(id.toString()) )
             return ResponseEntity.badRequest().build();
 
-        Optional<User> user;
-        user =  userDAO.findById(id);
+        User user = userService.getUserById(id);
 
         if ( user == null )
             return ResponseEntity.notFound().build();
 
-        Cookie cookie = new Cookie("user", user.get().getId().toString());
+        Cookie cookie = new Cookie("user", user.getId().toString());
         cookie.setMaxAge(5000);
         cookie.setHttpOnly(true);
         cookie.setPath("/");
         response.addCookie(cookie);
 
-        return ResponseEntity.ok(user.get());
+        return ResponseEntity.ok(user);
     }
 
     @GetMapping("/cookie/deletecookie")
