@@ -23,9 +23,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
-import org.springframework.web.util.WebUtils;
 
-import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.net.URI;
@@ -55,28 +53,23 @@ public class SeriesController {
     @Autowired
     SerieService serieService;
 
-    private static String  CACHE_CONTROL_CHAMPS = "Cache-control";
-    private static String  CACHE_CONTROL_VALUE = CacheControl.maxAge(Duration.ofDays(1)).cachePrivate().noTransform().mustRevalidate().getHeaderValue();
-
+    private static final String  CACHE_CONTROL_CHAMPS = "Cache-control";
+    private static final String  CACHE_CONTROL_VALUE = CacheControl.maxAge(Duration.ofDays(1)).cachePrivate().noTransform().mustRevalidate().getHeaderValue();
 
     @GetMapping(produces = {MediaType.APPLICATION_JSON_VALUE, MediaType.TEXT_HTML_VALUE, MediaType.TEXT_PLAIN_VALUE, MediaType.APPLICATION_XML_VALUE})
     public ModelAndView getSeries(@AuthenticationPrincipal User user, HttpServletRequest request, HttpServletResponse response) {
 
         Series series = new Series(shareService.getSeriesByUserId(user.getId()));
         for (Serie serie : series.getList()){
-            UUID idSerie = serie.getId();
             Link thisLink = linkTo(this.getClass()).slash(serie.getId()).withSelfRel();
             Link serieLink = linkTo(methodOn(this.getClass()).getSeries(user,request,response)).slash(serie.getId()).slash("events").withRel("serie");
             serie.add(serieLink);
             serie.add(thisLink);
         }
-        CacheControl.maxAge(Duration.ofDays(1)).cachePrivate().noTransform().mustRevalidate();
 
-//        response.addHeader("Cache-Control","max-age=60");
-        response.setHeader(CACHE_CONTROL_CHAMPS, CACHE_CONTROL_VALUE);
         ModelAndView modelAndView = new ModelAndView("series");
         modelAndView.addObject("series",series);
-
+        response.setHeader(CACHE_CONTROL_CHAMPS, CACHE_CONTROL_VALUE);
         return modelAndView;
     }
 
@@ -85,7 +78,6 @@ public class SeriesController {
 
         Series series = new Series(shareService.getSeriesByUserIdAndRole(user.getId(), Role.OWNER));
         for (Serie serie : series.getList()){
-            UUID idSerie = serie.getId();
             Link thisLink = linkTo(this.getClass()).slash(serie.getId()).withSelfRel();
             Link serieLink = linkTo(methodOn(this.getClass()).getSeries(user,request,response)).slash(serie.getId()).slash("events").withRel("serie");
             serie.add(serieLink);
@@ -104,7 +96,6 @@ public class SeriesController {
         Series series = new Series(shareService.getSeriesByUserIdAndNotRole(user.getId(), Role.OWNER));
 
         for (Serie serie : series.getList()){
-            UUID idSerie = serie.getId();
             Link thisLink = linkTo(this.getClass()).slash(serie.getId()).withSelfRel();
             Link serieLink = linkTo(methodOn(this.getClass()).getSeries(user,request,response)).slash(serie.getId()).slash("events").withRel("serie");
             serie.add(serieLink);
@@ -144,7 +135,6 @@ public class SeriesController {
         Serie serie = serieDao.save(serieR);
         shareDao.save(new Share(userService.getUserById(user.getId()), serie, Role.OWNER));
 
-
         return  ResponseEntity.created(URI.create("/series/" + serie.getId())).build();
     }
 
@@ -165,7 +155,7 @@ public class SeriesController {
         if(shareService.getFromUserIdAndSerieIdAndRole(user.getId(), idSerie, Role.OWNER) == null)
             return ResponseEntity.status(HttpStatus.METHOD_NOT_ALLOWED).build();
 
-        Share share = shareDao.save(new Share(userToShare, serieToShare, Role.valueOf(role.toUpperCase())));
+        shareDao.save(new Share(userToShare, serieToShare, Role.valueOf(role.toUpperCase())));
 
         return ResponseEntity.ok().build();
     }
