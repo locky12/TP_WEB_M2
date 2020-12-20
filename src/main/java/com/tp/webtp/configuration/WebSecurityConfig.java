@@ -35,6 +35,8 @@ import org.springframework.security.web.authentication.www.BasicAuthenticationEn
         protected void configure(HttpSecurity http) throws Exception {
             http.csrf().disable();
             http.headers().frameOptions().disable();
+            http.headers().cacheControl().disable();
+
 
            http.authenticationProvider(getProvider());
 

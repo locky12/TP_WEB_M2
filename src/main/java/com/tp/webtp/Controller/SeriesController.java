@@ -14,6 +14,7 @@ import com.tp.webtp.service.ShareService;
 import com.tp.webtp.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.hateoas.Link;
+import org.springframework.http.CacheControl;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -28,6 +29,7 @@ import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.net.URI;
+import java.time.Duration;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -53,6 +55,10 @@ public class SeriesController {
     @Autowired
     SerieService serieService;
 
+    private static String  CACHE_CONTROL_CHAMPS = "Cache-control";
+    private static String  CACHE_CONTROL_VALUE = CacheControl.maxAge(Duration.ofDays(1)).cachePrivate().noTransform().mustRevalidate().getHeaderValue();
+
+
     @GetMapping(produces = {MediaType.APPLICATION_JSON_VALUE, MediaType.TEXT_HTML_VALUE, MediaType.TEXT_PLAIN_VALUE, MediaType.APPLICATION_XML_VALUE})
     public ModelAndView getSeries(@AuthenticationPrincipal User user, HttpServletRequest request, HttpServletResponse response) {
 
@@ -64,7 +70,10 @@ public class SeriesController {
             serie.add(serieLink);
             serie.add(thisLink);
         }
+        CacheControl.maxAge(Duration.ofDays(1)).cachePrivate().noTransform().mustRevalidate();
 
+//        response.addHeader("Cache-Control","max-age=60");
+        response.setHeader(CACHE_CONTROL_CHAMPS, CACHE_CONTROL_VALUE);
         ModelAndView modelAndView = new ModelAndView("series");
         modelAndView.addObject("series",series);
 
@@ -85,7 +94,7 @@ public class SeriesController {
 
         ModelAndView modelAndView = new ModelAndView("series");
         modelAndView.addObject("series",series);
-
+        response.setHeader(CACHE_CONTROL_CHAMPS, CACHE_CONTROL_VALUE);
         return modelAndView;
     }
 
@@ -104,7 +113,7 @@ public class SeriesController {
 
         ModelAndView modelAndView = new ModelAndView("series");
         modelAndView.addObject("series",series);
-
+        response.setHeader(CACHE_CONTROL_CHAMPS, CACHE_CONTROL_VALUE);
         return modelAndView;
     }
 
@@ -122,7 +131,7 @@ public class SeriesController {
         serie.add(linkTo(methodOn(SeriesController.class).getSerie(user,response,request,idSerie)).withSelfRel());
         ModelAndView modelAndView = new ModelAndView("serie");
         modelAndView.addObject("serie", serie);
-
+        response.setHeader(CACHE_CONTROL_CHAMPS, CACHE_CONTROL_VALUE);
         return modelAndView;
     }
 

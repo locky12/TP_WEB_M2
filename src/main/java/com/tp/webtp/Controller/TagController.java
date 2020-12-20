@@ -8,6 +8,7 @@ import com.tp.webtp.model.Tags;
 import com.tp.webtp.service.TagService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.hateoas.Link;
+import org.springframework.http.CacheControl;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -21,6 +22,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.Duration;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
@@ -34,6 +36,10 @@ public class TagController {
 
     @Autowired
     TagService tagService;
+
+    private static String  CACHE_CONTROL_CHAMPS = "Cache-control";
+    private static String  CACHE_CONTROL_VALUE = CacheControl.maxAge(Duration.ofDays(1)).cachePrivate().noTransform().mustRevalidate().getHeaderValue();
+
 
     @GetMapping
     public ModelAndView getTags(@AuthenticationPrincipal User user, HttpServletRequest request, HttpServletResponse response) {
@@ -52,7 +58,7 @@ public class TagController {
         }
 
         modelAndView = new ModelAndView("tags").addObject("tags",tags);
-
+        response.setHeader(CACHE_CONTROL_CHAMPS, CACHE_CONTROL_VALUE);
         return modelAndView;
     }
 
@@ -68,7 +74,7 @@ public class TagController {
         modelAndView = new ModelAndView("tag");
         modelAndView.addObject("tagName", tagName);
         modelAndView.addObject("events", eventList);
-
+        response.setHeader(CACHE_CONTROL_CHAMPS, CACHE_CONTROL_VALUE);
         return modelAndView;
     }
 
@@ -79,7 +85,7 @@ public class TagController {
             return ResponseEntity.badRequest().build();
 
         Date lastDate = tagService.getEventsDateByTagNameAndUserId(tagName, user.getId());
-
+        response.setHeader(CACHE_CONTROL_CHAMPS, CACHE_CONTROL_VALUE);
         return ResponseEntity.ok(lastDate.toString());
     }
 

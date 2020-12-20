@@ -10,6 +10,7 @@ import com.tp.webtp.service.ShareService;
 import com.tp.webtp.service.TagService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.hateoas.Link;
+import org.springframework.http.CacheControl;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -21,6 +22,7 @@ import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.net.URI;
+import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.Date;
@@ -47,6 +49,10 @@ public class EventController {
     @Autowired
     TagDao tagDao;
 
+    private static String  CACHE_CONTROL_CHAMPS = "Cache-control";
+    private static String  CACHE_CONTROL_VALUE = CacheControl.maxAge(Duration.ofDays(1)).cachePrivate().noTransform().mustRevalidate().getHeaderValue();
+
+
     @GetMapping("{idSerie}/events")
     public ModelAndView getEvents(@AuthenticationPrincipal User user, @PathVariable("idSerie")  UUID idSerie, HttpServletRequest request, HttpServletResponse response) {
 
@@ -69,7 +75,7 @@ public class EventController {
         modelAndView = new ModelAndView("events");
         modelAndView.addObject("events", eventList);
         modelAndView.addObject("serie", serie);
-        
+        response.setHeader(CACHE_CONTROL_CHAMPS, CACHE_CONTROL_VALUE);
         return modelAndView;
     }
 
@@ -112,7 +118,7 @@ public class EventController {
         modelAndView = new ModelAndView("event");
         modelAndView.addObject("event", event);
         modelAndView.addObject("tags", tagList);
-
+        response.setHeader(CACHE_CONTROL_CHAMPS, CACHE_CONTROL_VALUE);
         return modelAndView;
     }
 
@@ -156,25 +162,20 @@ public class EventController {
             Link link = linkTo(methodOn(TagController.class).getTagEvents(user, request, response, tag.getTagName())).withRel("Alltags");
             event.add(link);
         }
-
+        response.setHeader(CACHE_CONTROL_CHAMPS, CACHE_CONTROL_VALUE);
         return modelAndView;
     }
 
     @PostMapping("{idSerie}/events/{idEvent}/tags")
     public ResponseEntity<Event> createEventTag(@AuthenticationPrincipal User user,HttpServletResponse response, HttpServletRequest request, @PathVariable("idSerie")  UUID idSerie, @PathVariable("idEvent")  UUID idEvent, @RequestBody Tag tagR) {
 
-        Cookie cookie = WebUtils.getCookie(request, "user");
 
-        if(cookie == null)
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
-
-        UUID idUser = UUID.fromString(cookie.getValue());
 
         Event event = eventService.getEventByEventId(idEvent);
         if(event == null || !event.getSerie().getId().equals(idSerie))
             return ResponseEntity.badRequest().build();
 
-        if(shareService.getFromUserIdAndSerieIdAndNotRole(idUser, event.getSerie().getId(), Role.READ) == null)
+        if(shareService.getFromUserIdAndSerieIdAndNotRole(user.getId(), event.getSerie().getId(), Role.READ) == null)
             return ResponseEntity.status(HttpStatus.METHOD_NOT_ALLOWED).build();
 
         tagR.setEvent(event);
@@ -183,9 +184,6 @@ public class EventController {
         event.setDateModif(Date.from(LocalDateTime.now().atZone(ZoneId.systemDefault()).toInstant()));
         eventDao.save(event);
 
-        cookie.setMaxAge(5000);
-        cookie.setPath("/");
-        response.addCookie(cookie);
         return ResponseEntity.created(URI.create("/series/" + event.getSerie().getId() + "/" + event.getId() + "/tags")).build();
     }
 }
