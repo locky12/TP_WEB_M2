@@ -114,7 +114,7 @@ public class SeriesController {
         return modelAndView;
     }
 
-    @GetMapping(value = "/{idSerie}")
+    @GetMapping(value = "/{idSerie}", produces = {MediaType.APPLICATION_JSON_VALUE, MediaType.TEXT_HTML_VALUE, MediaType.TEXT_PLAIN_VALUE, MediaType.APPLICATION_XML_VALUE})
     public ModelAndView getSerie(@AuthenticationPrincipal User user, HttpServletResponse response, HttpServletRequest request, @PathVariable("idSerie") UUID idSerie) {
 
         if ( !StringUtils.hasText(idSerie.toString()) )
@@ -167,15 +167,5 @@ public class SeriesController {
         shareService.saveShare(new Share(userToShare, serieToShare, Role.valueOf(role.toUpperCase())));
 
         return ResponseEntity.ok().build();
-    }
-
-    @GetMapping(value = "/t/test1", produces = { MediaType.APPLICATION_JSON_VALUE, MediaType.TEXT_HTML_VALUE, MediaType.APPLICATION_XML_VALUE, MediaType.TEXT_PLAIN_VALUE })
-    public List<Share> readCookie(){
-        Serie serie = new Serie();
-        serie.setId(UUID.randomUUID());
-        serie.setDescription("desc");
-        serie.setTitle("titre");
-
-        return shareService.getAllShares();
     }
 }

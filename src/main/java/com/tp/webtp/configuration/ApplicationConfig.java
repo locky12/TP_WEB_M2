@@ -2,19 +2,18 @@ package com.tp.webtp.configuration;
 
 import com.tp.webtp.entity.Serie;
 import com.tp.webtp.entity.Tag;
-import com.tp.webtp.model.Tags;
 import com.tp.webtp.model.JaxbList;
+import com.tp.webtp.model.Tags;
 import com.tp.webtp.resolver.JsonViewResolver;
 import com.tp.webtp.resolver.XmlViewResolver;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.PropertySource;
+import org.springframework.oxm.jaxb.Jaxb2Marshaller;
 import org.springframework.web.accept.ContentNegotiationManager;
 import org.springframework.web.servlet.ViewResolver;
-import org.springframework.oxm.jaxb.Jaxb2Marshaller;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
-import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import org.springframework.web.servlet.view.ContentNegotiatingViewResolver;
 import org.springframework.web.servlet.view.InternalResourceViewResolver;
@@ -36,8 +35,6 @@ public class ApplicationConfig implements WebMvcConfigurer {
 
         List<ViewResolver> resolvers = new ArrayList<>();
 
-
-//        resolvers.add(xmlStringViewResolver());
         resolvers.add(jsonViewResolver());
         resolvers.add(jspViewResolver());
         resolvers.add(xmlViewResolver());
@@ -53,13 +50,6 @@ public class ApplicationConfig implements WebMvcConfigurer {
 
         return new XmlViewResolver(marshaller);
     }
-//    @Bean
-//    public ViewResolver xmlStringViewResolver() {
-//        Jaxb2Marshaller marshaller = new Jaxb2Marshaller();
-//        marshaller.setClassesToBeBound(String.class);
-//
-//        return new XmlViewResolver(marshaller);
-//    }
 
     @Bean
     public ViewResolver jsonViewResolver() {

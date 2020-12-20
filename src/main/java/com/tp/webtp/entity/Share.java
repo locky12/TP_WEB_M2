@@ -1,5 +1,7 @@
 package com.tp.webtp.entity;
 
+import com.sun.istack.NotNull;
+
 import javax.persistence.*;
 import java.util.UUID;
 
@@ -11,6 +13,7 @@ public class Share {
     private UUID id;
 
     @ManyToOne
+    @NotNull
     private User user;
 
     @ManyToOne

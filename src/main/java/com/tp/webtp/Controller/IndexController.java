@@ -13,13 +13,9 @@ import org.springframework.web.servlet.ModelAndView;
 
 public class IndexController {
 
-
     @RequestMapping(value = { "/", "/index" }, method = RequestMethod.GET)
     public ModelAndView index(Model model){
         String message = "Hello Spring Boot + JSP";
-
-//        model.addAttribute("message", message);
-
         return new ModelAndView("index");
     };
 }

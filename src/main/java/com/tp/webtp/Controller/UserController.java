@@ -73,10 +73,4 @@ public class UserController {
 
         return ResponseEntity.created(URI.create("/users/" + user.getId())).build();
     }
-    /*
-    @GetMapping(path = "/users/test1")
-    public String readCookie(@CookieValue(value = "user") String uuid){
-        return  uuid;
-    }
-    */
 }

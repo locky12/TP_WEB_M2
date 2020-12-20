@@ -1,7 +1,6 @@
 package com.tp.webtp.configuration;
 
 import com.tp.webtp.Auth.AppAuthProvider;
-import com.tp.webtp.Auth.AuthenticationEntryPointImpl;
 import com.tp.webtp.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -16,8 +15,6 @@ import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.AuthenticationEntryPoint;
-import org.springframework.security.web.authentication.Http403ForbiddenEntryPoint;
-import org.springframework.security.web.authentication.www.BasicAuthenticationEntryPoint;
 
 
 @Configuration
@@ -28,8 +25,6 @@ import org.springframework.security.web.authentication.www.BasicAuthenticationEn
 
         @Autowired
         private AuthenticationEntryPoint authEntryPoint;
-
-
 
         @Override
         protected void configure(HttpSecurity http) throws Exception {
@@ -45,19 +40,10 @@ import org.springframework.security.web.authentication.www.BasicAuthenticationEn
                     .antMatchers("/login").permitAll()
                     .antMatchers("/logout").permitAll()
                     .antMatchers("/users").permitAll();
-//                    .antMatchers("/users/*").authenticated()
-//                    .antMatchers("/series/*").authenticated();
-//                    .antMatchers("/").permitAll()
-
-
-
-
 
             http.authorizeRequests().anyRequest().authenticated();
 
-            // Use AuthenticationEntryPoint to authenticate user/password
             http.httpBasic();
-
         }
 
         @Bean
@@ -89,19 +75,11 @@ import org.springframework.security.web.authentication.www.BasicAuthenticationEn
             InMemoryUserDetailsManagerConfigurer<AuthenticationManagerBuilder> //
                     mngConfig = auth.inMemoryAuthentication();
 
-            // Defines 2 users, stored in memory.
-            // ** Spring BOOT >= 2.x (Spring Security 5.x)
-            // Spring auto add ROLE_
             UserDetails u1 = User.withUsername("tom").password(encrytedPassword).roles("USER").build();
             UserDetails u2 = User.withUsername("jerry").password(encrytedPassword).roles("USER").build();
 
             mngConfig.withUser(u1);
             mngConfig.withUser(u2);
-
-            // If Spring BOOT < 2.x (Spring Security 4.x)):
-            // Spring auto add ROLE_
-            // mngConfig.withUser("tom").password("123").roles("USER");
-            // mngConfig.withUser("jerry").password("123").roles("USER");
         }
 
 

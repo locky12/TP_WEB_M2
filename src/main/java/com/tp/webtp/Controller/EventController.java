@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.hateoas.Link;
 import org.springframework.http.CacheControl;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
@@ -45,7 +46,7 @@ public class EventController {
     private static final String  LAST_MODIFIED_CHAMPS = "Last-Modified";
     private static SimpleDateFormat LAST_MODIFIED_FORMATTER = new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss zzz", Locale.ENGLISH);
 
-    @GetMapping("{idSerie}/events")
+    @GetMapping(value = "{idSerie}/events", produces = {MediaType.APPLICATION_JSON_VALUE, MediaType.TEXT_HTML_VALUE, MediaType.TEXT_PLAIN_VALUE, MediaType.APPLICATION_XML_VALUE})
     public ModelAndView getEvents(@AuthenticationPrincipal User user, @PathVariable("idSerie")  UUID idSerie, HttpServletRequest request, HttpServletResponse response) {
 
         ModelAndView modelAndView;
@@ -74,7 +75,7 @@ public class EventController {
         return modelAndView;
     }
 
-    @PostMapping("{idSerie}/events")
+    @PostMapping(value = "{idSerie}/events", consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Event> createEvent(@AuthenticationPrincipal User user, HttpServletResponse response, HttpServletRequest request, @PathVariable("idSerie") UUID idSerie, @RequestBody Event eventR) {
 
         Serie serie = serieService.getSerieBySerieId(idSerie);
@@ -92,7 +93,7 @@ public class EventController {
         return ResponseEntity.created(URI.create("/series/" + serie.getId() + "/" + event.getId())).build();
     }
 
-    @GetMapping("{idSerie}/events/{idEvent}")
+    @GetMapping(value = "{idSerie}/events/{idEvent}", produces = {MediaType.APPLICATION_JSON_VALUE, MediaType.TEXT_HTML_VALUE, MediaType.TEXT_PLAIN_VALUE, MediaType.APPLICATION_XML_VALUE})
     public ModelAndView getEvent(@AuthenticationPrincipal User user, @PathVariable("idSerie")  UUID idSerie, @PathVariable("idEvent")  UUID idEvent, HttpServletRequest request, HttpServletResponse response) {
 
         ModelAndView modelAndView;
@@ -119,7 +120,7 @@ public class EventController {
         return modelAndView;
     }
 
-    @PutMapping("{idSerie}/events/{idEvent}")
+    @PutMapping(value = "{idSerie}/events/{idEvent}", consumes = {MediaType.APPLICATION_JSON_VALUE})
     public ResponseEntity<Event> updateEvent(@AuthenticationPrincipal User user,@PathVariable("idSerie")  UUID idSerie, @PathVariable("idEvent")  UUID idEvent, @RequestBody Event eventR, HttpServletRequest request, HttpServletResponse response) {
 
         Event event = eventService.getEventByEventId(idEvent);
@@ -137,7 +138,7 @@ public class EventController {
         return ResponseEntity.ok(event);
     }
 
-    @GetMapping("{idSerie}/events/{idEvent}/tags")
+    @GetMapping(value = "{idSerie}/events/{idEvent}/tags", produces = {MediaType.APPLICATION_JSON_VALUE, MediaType.TEXT_HTML_VALUE, MediaType.TEXT_PLAIN_VALUE, MediaType.APPLICATION_XML_VALUE})
     public ModelAndView getEventTags(@AuthenticationPrincipal User user, @PathVariable("idSerie")  UUID idSerie, @PathVariable("idEvent")  UUID idEvent, HttpServletRequest request, HttpServletResponse response) {
         ModelAndView modelAndView;
 
@@ -165,7 +166,7 @@ public class EventController {
         return modelAndView;
     }
 
-    @PostMapping("{idSerie}/events/{idEvent}/tags")
+    @PostMapping(value = "{idSerie}/events/{idEvent}/tags", consumes = {MediaType.APPLICATION_JSON_VALUE})
     public ResponseEntity<Event> createEventTag(@AuthenticationPrincipal User user,HttpServletResponse response, HttpServletRequest request, @PathVariable("idSerie")  UUID idSerie, @PathVariable("idEvent")  UUID idEvent, @RequestBody Tag tagR) {
 
         Event event = eventService.getEventByEventId(idEvent);

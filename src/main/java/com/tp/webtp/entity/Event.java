@@ -1,5 +1,6 @@
 package com.tp.webtp.entity;
 
+import com.sun.istack.NotNull;
 import net.minidev.json.annotate.JsonIgnore;
 import org.springframework.hateoas.RepresentationModel;
 
@@ -21,7 +22,9 @@ public class Event extends RepresentationModel<Event> {
     @JoinColumn(name = "serie")
     private Serie serie;
 
+    @NotNull
     private String value;
+    @NotNull
     private Date date;
     private String comment;
 

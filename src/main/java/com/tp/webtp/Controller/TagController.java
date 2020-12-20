@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.hateoas.Link;
 import org.springframework.http.CacheControl;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.util.StringUtils;
@@ -41,7 +42,7 @@ public class TagController {
     private static final String  LAST_MODIFIED_CHAMPS = "Last-Modified";
     private static final SimpleDateFormat LAST_MODIFIED_FORMATTER = new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss zzz", Locale.ENGLISH);
 
-    @GetMapping
+    @GetMapping(produces = {MediaType.APPLICATION_JSON_VALUE, MediaType.TEXT_HTML_VALUE, MediaType.TEXT_PLAIN_VALUE, MediaType.APPLICATION_XML_VALUE})
     public ModelAndView getTags(@AuthenticationPrincipal User user, HttpServletRequest request, HttpServletResponse response) {
 
         ModelAndView modelAndView;
@@ -62,7 +63,7 @@ public class TagController {
         return modelAndView;
     }
 
-    @GetMapping("/{tagName}")
+    @GetMapping(value = "/{tagName}", produces = {MediaType.APPLICATION_JSON_VALUE, MediaType.TEXT_HTML_VALUE, MediaType.TEXT_PLAIN_VALUE, MediaType.APPLICATION_XML_VALUE})
     public ModelAndView getTagEvents(@AuthenticationPrincipal User user, HttpServletRequest request, HttpServletResponse response, @PathVariable("tagName") String tagName) {
         ModelAndView modelAndView;
 

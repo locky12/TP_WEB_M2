@@ -1,5 +1,6 @@
 package com.tp.webtp.entity;
 
+import com.sun.istack.NotNull;
 import org.springframework.hateoas.RepresentationModel;
 
 import javax.persistence.Entity;
@@ -20,6 +21,7 @@ public class Serie extends RepresentationModel<Serie> {
     @GeneratedValue
     private UUID id;
 
+    @NotNull
     private String title;
     private String description;
     private Date dateModif;
