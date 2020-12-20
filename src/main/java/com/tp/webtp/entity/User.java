@@ -26,6 +26,12 @@ public class User implements Serializable,UserDetails {
         this.username = username;
     }
 
+    public User(UUID id, String username, String password) {
+        this.id = id;
+        this.username = username;
+        this.password = password;
+    }
+
     public User(String pseudo) {
         this.username = username;
     }
@@ -36,9 +42,9 @@ public class User implements Serializable,UserDetails {
         return id;
     }
 
-
-
-
+    public void setPassword(String password) {
+        this.password = password;
+    }
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

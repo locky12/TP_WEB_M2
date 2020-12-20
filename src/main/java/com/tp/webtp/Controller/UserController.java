@@ -1,10 +1,12 @@
 package com.tp.webtp.Controller;
 
+import com.tp.webtp.configuration.WebSecurityConfig;
 import com.tp.webtp.dao.UserDAO;
 import com.tp.webtp.entity.Serie;
 import com.tp.webtp.entity.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
@@ -20,6 +22,11 @@ public class UserController {
 
     @Autowired
     UserDAO userDAO;
+
+    @Autowired
+    WebSecurityConfig webSecurityConfig;
+    @Autowired
+    private BCryptPasswordEncoder bCryptPasswordEncoder;
 
     @GetMapping("/{id}")
     public ResponseEntity<User> getUser(HttpServletResponse response, @PathVariable("id") UUID id) {
@@ -58,6 +65,7 @@ public class UserController {
         if (userR == null){
             return ResponseEntity.badRequest().build();
         }
+        userR.setPassword(bCryptPasswordEncoder.encode(userR.getPassword()));
         user = userDAO.save(userR);
 
         Cookie cookie = new Cookie("user", user.getId().toString());

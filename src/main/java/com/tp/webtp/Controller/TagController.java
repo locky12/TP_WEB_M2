@@ -2,6 +2,7 @@ package com.tp.webtp.Controller;
 
 import com.tp.webtp.entity.Event;
 import com.tp.webtp.entity.Tag;
+import com.tp.webtp.entity.User;
 import com.tp.webtp.model.ErrorModel;
 import com.tp.webtp.model.Tags;
 import com.tp.webtp.service.TagService;
@@ -9,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.hateoas.Link;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
@@ -34,22 +36,18 @@ public class TagController {
     TagService tagService;
 
     @GetMapping
-    public ModelAndView getTags(HttpServletRequest request, HttpServletResponse response) {
+    public ModelAndView getTags(@AuthenticationPrincipal User user, HttpServletRequest request, HttpServletResponse response) {
         ModelAndView modelAndView;
-        Cookie cookie = WebUtils.getCookie(request, "user");
-        if(cookie == null)
-            return ErrorModel.createErrorModel(HttpStatus.UNAUTHORIZED);
 
-        UUID idUser = UUID.fromString(cookie.getValue());
 
-        Tags tags = new Tags(tagService.getTagsByUserId(idUser));
+        Tags tags = new Tags(tagService.getTagsByUserId(user.getId()));
         if (tags == null)
             return ErrorModel.createErrorModel(HttpStatus.NOT_FOUND);
 
         for (Tag tag : tags.getList()) {
-            Link link = linkTo(methodOn(TagController.class).getTagEvents(request,response,tag.getTagName())).withSelfRel();
+            Link link = linkTo(methodOn(TagController.class).getTagEvents(user, request,response,tag.getTagName())).withSelfRel();
             tag.add(link);
-            Link linklastDate= linkTo(methodOn(TagController.class).getLastTagEvent(request,response,tag.getTagName())).withRel("lastDate tag");
+            Link linklastDate= linkTo(methodOn(TagController.class).getLastTagEvent(user, request,response,tag.getTagName())).withRel("lastDate tag");
             tag.add(linklastDate);
         }
 
@@ -59,61 +57,39 @@ public class TagController {
     }
 
     @GetMapping("/{tagName}")
-    public ModelAndView getTagEvents(HttpServletRequest request, HttpServletResponse response, @PathVariable("tagName") String tagName) {
+    public ModelAndView getTagEvents(@AuthenticationPrincipal User user, HttpServletRequest request, HttpServletResponse response, @PathVariable("tagName") String tagName) {
         ModelAndView modelAndView;
 
-        Cookie cookie = WebUtils.getCookie(request, "user");
-        if(cookie == null)
-            return ErrorModel.createErrorModel(HttpStatus.UNAUTHORIZED);
-        UUID idUser = UUID.fromString(cookie.getValue());
 
         if (!StringUtils.hasText(tagName))
             return ErrorModel.createErrorModel(HttpStatus.BAD_REQUEST);
 
-        List<Event> eventList = tagService.getEventsByTagNameAndUserId(tagName, idUser);
+        List<Event> eventList = tagService.getEventsByTagNameAndUserId(tagName, user.getId());
 
         modelAndView = new ModelAndView("tag");
         modelAndView.addObject("tagName", tagName);
         modelAndView.addObject("events", eventList);
 
 
-
-        cookie.setMaxAge(5000);
-        cookie.setPath("/");
-        response.addCookie(cookie);
         return modelAndView;
     }
 
     @GetMapping("/{tagName}/lastdate")
-    public ResponseEntity<String> getLastTagEvent(HttpServletRequest request, HttpServletResponse response, @PathVariable("tagName") String tagName) {
+    public ResponseEntity<String> getLastTagEvent(@AuthenticationPrincipal User user, HttpServletRequest request, HttpServletResponse response, @PathVariable("tagName") String tagName) {
 
-        Cookie cookie = WebUtils.getCookie(request, "user");
-
-        if(cookie == null)
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
-
-        UUID idUser = UUID.fromString(cookie.getValue());
 
         if (!StringUtils.hasText(tagName))
             return ResponseEntity.badRequest().build();
 
-        Date lastDate = tagService.getEventsDateByTagNameAndUserId(tagName, idUser);
+        Date lastDate = tagService.getEventsDateByTagNameAndUserId(tagName, user.getId());
 
-        cookie.setMaxAge(5000);
-        cookie.setPath("/");
-        response.addCookie(cookie);
         return ResponseEntity.ok(lastDate.toString());
     }
 
     @GetMapping("/{tagName}/frequency")
-    public ResponseEntity<String> getTagFrequency(HttpServletRequest request, HttpServletResponse response, @PathVariable("tagName") String tagName, @RequestParam String debut, @RequestParam String fin) {
+    public ResponseEntity<String> getTagFrequency(@AuthenticationPrincipal User user, HttpServletRequest request, HttpServletResponse response, @PathVariable("tagName") String tagName, @RequestParam String debut, @RequestParam String fin) {
 
-        Cookie cookie = WebUtils.getCookie(request, "user");
 
-        if(cookie == null)
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
-
-        UUID idUser = UUID.fromString(cookie.getValue());
 
         SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy");
 
@@ -121,11 +97,9 @@ public class TagController {
             Date dateDebut = formatter.parse(debut);
             Date dateFin = formatter.parse(fin);
 
-            Integer frequency = tagService.getTagFrequencyBetweenDates(tagName, idUser, dateDebut, dateFin);
+            Integer frequency = tagService.getTagFrequencyBetweenDates(tagName, user.getId(), dateDebut, dateFin);
 
-            cookie.setMaxAge(5000);
-            cookie.setPath("/");
-            response.addCookie(cookie);
+
             return ResponseEntity.ok("Entre " + dateDebut.toString() + " et " + dateFin.toString() + ", " + tagName + " a été utilisé " + frequency + " fois !");
         }
         catch (ParseException e) {

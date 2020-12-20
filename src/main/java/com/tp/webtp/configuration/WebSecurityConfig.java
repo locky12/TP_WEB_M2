@@ -29,9 +29,12 @@ import org.springframework.security.web.authentication.www.BasicAuthenticationEn
         @Autowired
         private AuthenticationEntryPoint authEntryPoint;
 
+
+
         @Override
         protected void configure(HttpSecurity http) throws Exception {
             http.csrf().disable();
+            http.headers().frameOptions().disable();
 
            http.authenticationProvider(getProvider());
 
@@ -51,7 +54,8 @@ import org.springframework.security.web.authentication.www.BasicAuthenticationEn
             http.authorizeRequests().anyRequest().authenticated();
 
             // Use AuthenticationEntryPoint to authenticate user/password
-            http.httpBasic().authenticationEntryPoint(authEntryPoint);
+            http.httpBasic();
+
         }
 
         @Bean
@@ -65,6 +69,10 @@ import org.springframework.security.web.authentication.www.BasicAuthenticationEn
             AppAuthProvider provider = new AppAuthProvider();
             provider.setUserDetailsService(userService);
             return provider;
+        }
+        @Override
+        public void configure(AuthenticationManagerBuilder auth) throws Exception {
+             auth.userDetailsService(userService).passwordEncoder(passwordEncoder());
         }
 
         @Autowired

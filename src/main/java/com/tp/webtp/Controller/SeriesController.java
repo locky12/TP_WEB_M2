@@ -17,6 +17,7 @@ import org.springframework.hateoas.Link;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
@@ -53,20 +54,15 @@ public class SeriesController {
     SerieService serieService;
 
     @GetMapping(produces = {MediaType.APPLICATION_JSON_VALUE, MediaType.TEXT_HTML_VALUE, MediaType.TEXT_PLAIN_VALUE, MediaType.APPLICATION_XML_VALUE})
-    public ModelAndView getSeries(HttpServletRequest request, HttpServletResponse response) {
+    public ModelAndView getSeries(@AuthenticationPrincipal User user, HttpServletRequest request, HttpServletResponse response) {
 
-        Cookie cookie = WebUtils.getCookie(request, "user");
 
-        if(cookie == null)
-            return ErrorModel.createErrorModel(HttpStatus.UNAUTHORIZED);
 
-        UUID idUser = UUID.fromString(cookie.getValue());
-
-        Series series = new Series(shareService.getSeriesByUserId(idUser));
+        Series series = new Series(shareService.getSeriesByUserId(user.getId()));
         for (Serie serie : series.getList()){
             UUID idSerie = serie.getId();
             Link thisLink = linkTo(this.getClass()).slash(serie.getId()).withSelfRel();
-            Link serieLink = linkTo(methodOn(this.getClass()).getSeries(request,response)).slash(serie.getId()).slash("events").withRel("serie");
+            Link serieLink = linkTo(methodOn(this.getClass()).getSeries(user,request,response)).slash(serie.getId()).slash("events").withRel("serie");
             serie.add(serieLink);
             serie.add(thisLink);
         }
@@ -74,25 +70,18 @@ public class SeriesController {
         ModelAndView modelAndView = new ModelAndView("series");
         modelAndView.addObject("series",series);
 
-        cookie.setMaxAge(5000);
-        cookie.setPath("/");
-        response.addCookie(cookie);
         return modelAndView;
     }
 
     @GetMapping(value = "/owned", produces = {MediaType.APPLICATION_JSON_VALUE, MediaType.TEXT_HTML_VALUE, MediaType.TEXT_PLAIN_VALUE, MediaType.APPLICATION_XML_VALUE})
-    public ModelAndView getSeriesOwned(HttpServletRequest request, HttpServletResponse response) {
+    public ModelAndView getSeriesOwned(@AuthenticationPrincipal User user, HttpServletRequest request, HttpServletResponse response) {
 
-        Cookie cookie = WebUtils.getCookie(request, "user");
 
-        if(cookie == null)
-            return ErrorModel.createErrorModel(HttpStatus.UNAUTHORIZED);
-
-        Series series = new Series(shareService.getSeriesByUserIdAndRole(UUID.fromString(cookie.getValue()), Role.OWNER));
+        Series series = new Series(shareService.getSeriesByUserIdAndRole(user.getId(), Role.OWNER));
         for (Serie serie : series.getList()){
             UUID idSerie = serie.getId();
             Link thisLink = linkTo(this.getClass()).slash(serie.getId()).withSelfRel();
-            Link serieLink = linkTo(methodOn(this.getClass()).getSeries(request,response)).slash(serie.getId()).slash("events").withRel("serie");
+            Link serieLink = linkTo(methodOn(this.getClass()).getSeries(user,request,response)).slash(serie.getId()).slash("events").withRel("serie");
             serie.add(serieLink);
             serie.add(thisLink);
         }
@@ -100,25 +89,19 @@ public class SeriesController {
         ModelAndView modelAndView = new ModelAndView("series");
         modelAndView.addObject("series",series);
 
-        cookie.setMaxAge(5000);
-        cookie.setPath("/");
-        response.addCookie(cookie);
         return modelAndView;
     }
 
     @GetMapping(value = "/shared", produces = {MediaType.APPLICATION_JSON_VALUE, MediaType.TEXT_HTML_VALUE, MediaType.TEXT_PLAIN_VALUE, MediaType.APPLICATION_XML_VALUE})
-    public ModelAndView getSeriesShared(HttpServletRequest request, HttpServletResponse response) {
+    public ModelAndView getSeriesShared(@AuthenticationPrincipal User user,HttpServletRequest request, HttpServletResponse response) {
 
-        Cookie cookie = WebUtils.getCookie(request, "user");
 
-        if(cookie == null)
-            return ErrorModel.createErrorModel(HttpStatus.UNAUTHORIZED);
 
-        Series series = new Series(shareService.getSeriesByUserIdAndNotRole(UUID.fromString(cookie.getValue()), Role.OWNER));
+        Series series = new Series(shareService.getSeriesByUserIdAndNotRole(user.getId(), Role.OWNER));
         for (Serie serie : series.getList()){
             UUID idSerie = serie.getId();
             Link thisLink = linkTo(this.getClass()).slash(serie.getId()).withSelfRel();
-            Link serieLink = linkTo(methodOn(this.getClass()).getSeries(request,response)).slash(serie.getId()).slash("events").withRel("serie");
+            Link serieLink = linkTo(methodOn(this.getClass()).getSeries(user,request,response)).slash(serie.getId()).slash("events").withRel("serie");
             serie.add(serieLink);
             serie.add(thisLink);
         }
@@ -126,73 +109,44 @@ public class SeriesController {
         ModelAndView modelAndView = new ModelAndView("series");
         modelAndView.addObject("series",series);
 
-        cookie.setMaxAge(5000);
-        cookie.setPath("/");
-        response.addCookie(cookie);
         return modelAndView;
     }
 
     @GetMapping(value = "/{idSerie}")
-    public ModelAndView getSerie(HttpServletResponse response, HttpServletRequest request, @PathVariable("idSerie") UUID idSerie) {
-
-        Cookie cookie = WebUtils.getCookie(request, "user");
-
-        if(cookie == null)
-            return ErrorModel.createErrorModel(HttpStatus.UNAUTHORIZED);
+    public ModelAndView getSerie(@AuthenticationPrincipal User user, HttpServletResponse response, HttpServletRequest request, @PathVariable("idSerie") UUID idSerie) {
 
         if ( !StringUtils.hasText(idSerie.toString()) )
             return ErrorModel.createErrorModel(HttpStatus.BAD_REQUEST);
 
-        UUID idUser = UUID.fromString(cookie.getValue());
-
-        Serie serie = shareService.getFromUserIdAndSerieId(idUser, idSerie);
+        Serie serie = shareService.getFromUserIdAndSerieId(user.getId(), idSerie);
 
         if(serie == null)
             return ErrorModel.createErrorModel(HttpStatus.NOT_FOUND);
 
-        serie.add(linkTo(methodOn(SeriesController.class).getSerie(response,request,idSerie)).withSelfRel());
+        serie.add(linkTo(methodOn(SeriesController.class).getSerie(user,response,request,idSerie)).withSelfRel());
         ModelAndView modelAndView = new ModelAndView("serie");
         modelAndView.addObject("serie", serie);
-
-        cookie.setMaxAge(5000);
-        cookie.setPath("/");
-        response.addCookie(cookie);
 
         return modelAndView;
     }
 
     @PostMapping()
-    public ResponseEntity<Void> createSerie(HttpServletResponse response, HttpServletRequest request, @RequestBody Serie serieR) {
-
-        Cookie cookie = WebUtils.getCookie(request, "user");
-
-        if(cookie == null)
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+    public ResponseEntity<Void> createSerie(@AuthenticationPrincipal User user, HttpServletResponse response, HttpServletRequest request, @RequestBody Serie serieR) {
 
         if (serieR == null)
             return ResponseEntity.badRequest().build();
 
-        UUID userId = UUID.fromString(cookie.getValue());
-
         Serie serie = serieDao.save(serieR);
-        shareDao.save(new Share(userService.getUserById(userId), serie, Role.OWNER));
+        shareDao.save(new Share(userService.getUserById(user.getId()), serie, Role.OWNER));
 
-        cookie.setMaxAge(5000);
-        cookie.setPath("/");
-        response.addCookie(cookie);
 
         return  ResponseEntity.created(URI.create("/series/" + serie.getId())).build();
     }
 
     @PostMapping("/{idSerie}")
-    public ResponseEntity<Void> shareSerie(HttpServletResponse response, HttpServletRequest request, @RequestBody Map<String, String> idAndRole, @PathVariable("idSerie") UUID idSerie) {
+    public ResponseEntity<Void> shareSerie(@AuthenticationPrincipal User user,HttpServletResponse response, HttpServletRequest request, @RequestBody Map<String, String> idAndRole, @PathVariable("idSerie") UUID idSerie) {
 
-        Cookie cookie = WebUtils.getCookie(request, "user");
 
-        if(cookie == null)
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
-
-        UUID idUserSharing = UUID.fromString(cookie.getValue());
 
         String idUserToShare = idAndRole.get("idUser");
         String role = idAndRole.get("role");
@@ -205,14 +159,10 @@ public class SeriesController {
         if(userToShare == null || serieToShare == null)
             return ResponseEntity.notFound().build();
 
-        if(shareService.getFromUserIdAndSerieIdAndRole(idUserSharing, idSerie, Role.OWNER) == null)
+        if(shareService.getFromUserIdAndSerieIdAndRole(user.getId(), idSerie, Role.OWNER) == null)
             return ResponseEntity.status(HttpStatus.METHOD_NOT_ALLOWED).build();
 
         Share share = shareDao.save(new Share(userToShare, serieToShare, Role.valueOf(role.toUpperCase())));
-
-        cookie.setMaxAge(5000);
-        cookie.setPath("/");
-        response.addCookie(cookie);
 
         return ResponseEntity.ok().build();
     }

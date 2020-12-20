@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 import java.util.UUID;
 
@@ -22,12 +23,14 @@ public class WebtpApplication {
 	EventDao eventDao;
 	@Autowired
 	TagDao tagDao;
+	@Autowired
+	BCryptPasswordEncoder bCryptPasswordEncoder;
 
 	@Bean
 	public void test(){
 
-		User user1 = userDao.save(new User(UUID.fromString("9c06c672-4079-11eb-b378-0242ac130002"),"email user1"));
-		User user2 = userDao.save(new User(UUID.fromString("ede87c00-407a-11eb-b378-0242ac130002"), "email user2"));
+		User user1 = userDao.save(new User(UUID.fromString("9c06c672-4079-11eb-b378-0242ac130002"),"bob",bCryptPasswordEncoder.encode("password")));
+		User user2 = userDao.save(new User(UUID.fromString("ede87c00-407a-11eb-b378-0242ac130002"), "alice",bCryptPasswordEncoder.encode("password")));
 
 		Serie serie1User1 = serieDao.save(new Serie("Titre série 1 user 1", "desc"));
 		Serie serie2User1 = serieDao.save(new Serie("Titre série 2 user 1", "desc"));
